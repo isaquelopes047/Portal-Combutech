@@ -45,7 +45,7 @@ function Login() {
 
         /* Ferificação de transportadora */
         if (data.data.user.transportadora === null){
-          localStorage.setItem('transportadora', null)
+          localStorage.setItem('transportadora', 30)
         } else {
           localStorage.setItem('transportadora', data.data.user.transportadora.transportadoraid)
         }

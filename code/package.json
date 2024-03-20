@@ -24,6 +24,7 @@
     "@mui/system": "latest",
     "@mui/utils": "latest",
     "@mui/x-date-pickers": "latest",
+    "aos": "^2.3.4",
     "apexcharts": "^3.47.0",
     "chart.js": "^4.4.0",
     "dayjs": "^1.11.10",

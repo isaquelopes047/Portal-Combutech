@@ -164,7 +164,7 @@ export default function EditarIntegrado() {
             <p>Informações gerais</p>
         </div>
 
-        <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
+        <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }} data-aos="fade-up-left">
             <RowForm>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
                     <Stack spacing={2} sx={{ ...defaultInputStyle, paddingX: 0 }}>
@@ -270,7 +270,7 @@ export default function EditarIntegrado() {
             </RowForm>
         </div>
 
-        <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
+        <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }} data-aos="fade-up-left">
             <Inconsistencias abastecimentoInconsistencias={dadosItemParam?.abastecimentoInconsistencias || ''} />
         </div>
 

@@ -22,6 +22,7 @@ function ProgressCom() {
   return (
     <div className="row">
       <ProgressCard
+        data-aos="fade-up-left"
         count="Diesel S10"
         name="Total Negociado"
         totalSale="R$ 5.42"
@@ -40,8 +41,8 @@ function ProgressCom() {
         color="#139675"
       />
       <ProgressCard
-        count="Dolar hoje"
-        name=""
+        count="Dolar"
+        name="Valor hoje"
         totalSale={`R$ ${dolarValue}`}
         color="#0f6d85"
       />

@@ -207,7 +207,7 @@ export default function MainAbastecimentoIntegrado() {
             </MenuItem>
         </UtilBar>
 
-        <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0' }}>
+        <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0' }} data-aos="fade-up">
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <OptionsButton titleOption={<FaFilter />}>
                     <MenuItem onClick={() => sortRows('abastecimentoId')}>

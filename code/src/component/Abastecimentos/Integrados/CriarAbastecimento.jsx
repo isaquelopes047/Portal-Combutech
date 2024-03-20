@@ -4,6 +4,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { Autocomplete } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
+import LinearDeterminate from '../../loadings/progressBar/progressBar';
 import styled from 'styled-components';
 import dayjs from 'dayjs';
 import Stack from '@mui/material/Stack';
@@ -15,6 +16,10 @@ import 'moment/locale/pt-br';
 import 'dayjs/locale/en-gb';
 
 import { formatNumberForKm, formatNumberDefault, formatNumberForLitros, formatNumberForValorUnitario } from './formatters'
+import { handlePlacaChange, verificarPlaca } from './funcoesUtilitarias/PlacaVeiculo';
+import { handleMotoristaChange, verificarMotorista } from './funcoesUtilitarias/Motorista';
+import { handlePostoChange, verificarPosto } from './funcoesUtilitarias/Posto';
+import { handleProdutosChange, verificarProdutos } from './funcoesUtilitarias/Produtos';
 
 const RowForm = styled.div`
     width: 100%;
@@ -23,6 +28,7 @@ const RowForm = styled.div`
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
+
 
     @media (max-width: 606px) {
         flex-direction: column;
@@ -42,6 +48,7 @@ const RowForm = styled.div`
 const defaultInputStyle = {
     flex: 1,
     marginTop: 1.5,
+    height: '65px',
     '& input': {
         marginLeft: 0,
         backgroundColor: '#fff',
@@ -56,9 +63,11 @@ const defaultInputStyle = {
 
 const defaultInputsAutoComplete = {
     '& label.Mui-focused': { paddingLeft: 0 },
-    '& .css-16e8wmc-MuiAutocomplete-root, & .MuiOutlinedInput-root, & .MuiAutocomplete-input': { paddingLeft: 1, paddingTop: 0, height: '40px' },
-    '& .css-1q60rmi-MuiAutocomplete-endAdornment': { top: 0 },
-    '& .MuiAutocomplete-hasPopupIcon.css-6c6kjn-MuiAutocomplete-root, & .MuiOutlinedInput-root, & .MuiAutocomplete-hasClearIcon.css-6c6kjn-MuiAutocomplete-root, & .MuiOutlinedInput-root': { height: '50px' },
+    '& .css-16e8wmc-MuiAutocomplete-root, & .MuiOutlinedInput-root, & .MuiAutocomplete-input': {paddingLeft: 1, paddingTop: 0, height: '40px'},
+    '& .css-1q60rmi-MuiAutocomplete-endAdornment': {top: 0},
+    '& .MuiAutocomplete-hasPopupIcon.css-6c6kjn-MuiAutocomplete-root, & .MuiOutlinedInput-root, & .MuiAutocomplete-hasClearIcon.css-6c6kjn-MuiAutocomplete-root, & .MuiOutlinedInput-root': {height: '50px'},
+    '& .MuiButtonBase-root, & .MuiIconButton-root & .MuiIconButton-sizeMedium & .MuiAutocomplete-popupIndicator & .css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator': {display: 'none'},
+    '& .label.Mui-focused': { marginTop: 50 }
 };
 
 const styleLoad = {
@@ -70,10 +79,10 @@ const styleLoad = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-}
+}; 
 
 export default function CriarAbastecimentoIntegrado() {
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState({ numeroDocumento: false, quilometragem: false, litros: false, valorUnitario: false,  });
     const [fieldClicked, setFieldClicked] = useState(false);
     const [loading, setLoading] = useState(false);
     const [placasVeiculo, setPlacasVeiculo] = useState([]);
@@ -99,17 +108,21 @@ export default function CriarAbastecimentoIntegrado() {
         litros: '',
         valorUnitario: '',
     })
-    console.log(dadosFormulario);
     const [alert, setAlert] = useState({
         messageAlert: '',
         typeAlert: '',
         show: false
     });
 
+    const transportadoraId = localStorage.getItem('transportadora')
+
     /* Função callback de get dos dados */
     const GetApiDados = async (UrlRequest, callback) => {
         const authToken = localStorage.getItem('authToken');
-        const headers = { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' };
+        const headers = {
+            'Authorization': `Bearer ${authToken}`, 
+            'Content-Type': 'application/json' 
+        };
         try {
             const resposta = await fetch(`${base.URL_BASE_API}${UrlRequest}`, { method: 'GET', headers: headers });
             const dados = await resposta.json();
@@ -120,15 +133,15 @@ export default function CriarAbastecimentoIntegrado() {
     };
 
     useEffect(() => {
-        GetApiDados('/Veiculo/BuscaVeiculos', (dados) => {
+        GetApiDados(`/Veiculo/BuscaVeiculosPorTransportadora/${transportadoraId}`, (dados) => {
             setPlacasVeiculo(dados);
         });
 
-        GetApiDados('/Motorista/BuscaMotoristas', (dados) => {
+        GetApiDados(`/Motorista/BuscaMotoristasPorTransportadora/${transportadoraId}`, (dados) => {
             setMotoristas(dados);
         });
 
-        GetApiDados('/Posto/BuscaPostos', (dados) => {
+        GetApiDados(`/Posto/BuscaPostosPorTransportadora/${transportadoraId}`, (dados) => {
             setPosto(dados);
         });
 
@@ -155,114 +168,6 @@ export default function CriarAbastecimentoIntegrado() {
             document.removeEventListener('input', camposInputListener);
         };
     }, [dadosFormulario, fieldClicked]);
-
-    /* Tratamento dos dados para os VEICULOS */
-    const handlePlacaChange = (event) => {
-        const novaPlacaDigitada = event.target.value.toUpperCase();
-        setPlacaDigitada(novaPlacaDigitada);
-        setDadosFormulario({
-            ...dadosFormulario,
-            erro: false
-        });
-    };
-    const verificarPlaca = () => {
-        const veiculoEncontrado = placasVeiculo.find(item => item.veiculoplaca === placaDigitada);
-        if (veiculoEncontrado) {
-            setVeiculoEncontrado(veiculoEncontrado);
-            setDadosFormulario({
-                ...dadosFormulario,
-                idVeiculo: veiculoEncontrado.veiculoid,
-                erro: false
-            });
-        } else {
-            setDadosFormulario({
-                ...dadosFormulario,
-                erro: true
-            });
-        }
-    };
-    /* Fim */
-
-    /* Tratamento dos dados para os MOTORISTAS */
-    const handleMotoristaChange = (event) => {
-        const novaMotoristaDigitado = event.target.value.toUpperCase();
-        setMotoristaDigitado(novaMotoristaDigitado);
-        setDadosFormulario({
-            ...dadosFormulario,
-            erro: false
-        });
-    };
-    const verificarMotorista = () => {
-        const motoristaEncontrado = motoristas.find(item => item.motoristanome === motoristaDigitado);
-        if (motoristaEncontrado) {
-            setMotoristaEncontrado(motoristaEncontrado);
-            setDadosFormulario({
-                ...dadosFormulario,
-                idMotorista: motoristaEncontrado.motoristaid,
-                erro: false
-            });
-        } else {
-            setDadosFormulario({
-                ...dadosFormulario,
-                erro: true
-            });
-        }
-    };
-    /* Fim */
-
-    /* Tratamento dos dados para os POSTOS */
-    const handlePostoChange = (event) => {
-        const novaPostoDigitado = event.target.value.toUpperCase();
-        setPostoDigitado(novaPostoDigitado);
-        setDadosFormulario({
-            ...dadosFormulario,
-            erro: false
-        });
-    };
-    const verificarPosto = () => {
-        const postoEncontrado = posto.find(item => item.postonomefantasia === postoDigitado);
-        if (postoEncontrado) {
-            setPostoEcontrado(postoEncontrado);
-            setDadosFormulario({
-                ...dadosFormulario,
-                idPosto: postoEncontrado.postoid,
-                erro: false
-            });
-        } else {
-            setDadosFormulario({
-                ...dadosFormulario,
-                erro: true
-            });
-        }
-    };
-    /* Fim */
-
-    /* Tratamento dos dados para os PRODUTOS */
-    const handleProdutosChange = (event) => {
-        const novoProdutoDigitado = event.target.value.toUpperCase();
-        setProdutosDigitado(novoProdutoDigitado);
-        setDadosFormulario({
-            ...dadosFormulario,
-            erro: false
-        });
-    };
-    const verificarProdutos = () => {
-        const produtoEncontrado = produtos.find(item => item.produtodescricao === produtosDigitado);
-        if (produtoEncontrado) {
-            setPostoEcontrado(produtoEncontrado);
-            setDadosFormulario({
-                ...dadosFormulario,
-                idProduto: produtoEncontrado.produtoid,
-                erro: false
-            });
-        } else {
-            setDadosFormulario({
-                ...dadosFormulario,
-                erro: true
-            });
-        }
-    };
-    /* Fim */
 
     /* handle para formatação da data */
     const handleChange = (campo, event) => {
@@ -298,17 +203,16 @@ export default function CriarAbastecimentoIntegrado() {
     /* Envio do formulario */
     const handleSubmit = () => {
         setLoading(true);
-
+        const authToken = localStorage.getItem('authToken');
+        const valorUnitarioFormatado = dadosFormulario.valorUnitario.replace(/[^\d,]/g, '');
         const dadosParaEnvio = {
             ...dadosFormulario,
             /* idPosto: parseFloat(dadosFormulario.idPosto.replace(/[,.]/g, '')), */
             numeroDocumento: parseFloat(dadosFormulario.numeroDocumento.replace(/[,.]/g, '')),
             quilometragem: parseFloat(dadosFormulario.quilometragem.replace(/[,.]/g, '')),
             litros: parseFloat(dadosFormulario.litros.replace(/[,.]/g, '')),
-            valorUnitario: parseFloat(dadosFormulario.valorUnitario.replace(/[,.]/g, ''))
+            valorUnitario: parseFloat(valorUnitarioFormatado.replace(',', '.'))
         };
-
-        const authToken = localStorage.getItem('authToken');
         const headers = {
             'Authorization': `Bearer ${authToken}`,
             'Content-Type': 'application/json'
@@ -325,6 +229,7 @@ export default function CriarAbastecimentoIntegrado() {
                     typeAlert: 'success',
                     show: true
                 });
+                /*  setTimeout(() => { window.location.reload() }, 3000); */
             })
             .catch(error => {
                 setAlert({
@@ -345,13 +250,14 @@ export default function CriarAbastecimentoIntegrado() {
 
         {alert.show ? (
             <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
-                <Alert severity={alert.typeAlert}>{alert.messageAlert}</Alert>
+                <div>
+                    <Alert severity={alert.typeAlert}>{alert.messageAlert}</Alert>
+                    {!alert.messageAlert.startsWith('Erro') && <LinearDeterminate />}
+                </div>
             </div>
-        ) : (
-            null
-        )}
+        ) : (null)}
 
-        <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
+        <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }} data-aos="fade-up-left">
             <div>
                 {loading ? (
                     <div style={{ ...styleLoad }}>
@@ -361,7 +267,6 @@ export default function CriarAbastecimentoIntegrado() {
                     null
                 )}
             </div>
-
             <RowForm>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="en-gb">
                     <Stack spacing={2} sx={{ ...defaultInputStyle, paddingX: 0 }}>
@@ -378,7 +283,7 @@ export default function CriarAbastecimentoIntegrado() {
                     options={placasVeiculo}
                     getOptionLabel={(option) => option.veiculoplaca || 'Veículo'}
                     onChange={(event, newValue) => {
-                        if (newValue) { handlePlacaChange({ target: { value: newValue.veiculoplaca } }) }
+                        if (newValue) { handlePlacaChange({ target: { value: newValue.veiculoplaca }}, setPlacaDigitada, setDadosFormulario, dadosFormulario) }
                     }}
                     renderOption={(props, option) => (
                         <li {...props} key={option.veiculoid}>
@@ -390,18 +295,18 @@ export default function CriarAbastecimentoIntegrado() {
                             {...params}
                             label='Veículo'
                             value={placaDigitada}
-                            error={dadosFormulario.erro}
-                            helperText={dadosFormulario.erro ? 'Placa não encontrada' : ''}
-                            onBlur={verificarPlaca}
+                            onBlur={() => verificarPlaca(placasVeiculo, placaDigitada, setVeiculoEncontrado, setDadosFormulario, dadosFormulario)}
                         />
                     )}
-                    filterOptions={(options, { inputValue }) => options.filter((option) => option.veiculoplaca.toLowerCase().includes(inputValue.toLowerCase())).slice(0, 5)} />
+                    filterOptions={(options, { inputValue }) => options.filter((option) => option.veiculoplaca.toLowerCase().includes(inputValue.toLowerCase())).slice(0, 5)}
+                />
+
                 <Autocomplete
                     sx={{ ...defaultInputStyle, paddingX: 1, ...defaultInputsAutoComplete }}
                     options={motoristas}
                     getOptionLabel={(option) => option.motoristanome || 'Motorista'}
                     onChange={(event, newValue) => {
-                        if (newValue) { handleMotoristaChange({ target: { value: newValue.motoristanome } }) }
+                        if (newValue) { handleMotoristaChange({ target: { value: newValue.motoristanome }}, setMotoristaDigitado, setDadosFormulario, dadosFormulario) }
                     }}
                     renderOption={(props, option) => (
                         <li {...props} key={option.motoristaid}>
@@ -413,9 +318,7 @@ export default function CriarAbastecimentoIntegrado() {
                             {...params}
                             label='Motorista'
                             value={motoristaDigitado}
-                            error={dadosFormulario.erro}
-                            helperText={dadosFormulario.erro ? 'Motorista não encontrada' : ''}
-                            onBlur={verificarMotorista}
+                            onBlur={() => verificarMotorista(motoristas, motoristaDigitado, setMotoristaEncontrado, setDadosFormulario, dadosFormulario)}
                         />
                     )}
                     filterOptions={(options, { inputValue }) => options.filter((option) => option.motoristanome.toLowerCase().includes(inputValue.toLowerCase())).slice(0, 5)}
@@ -426,11 +329,13 @@ export default function CriarAbastecimentoIntegrado() {
                 <Autocomplete
                     sx={{ ...defaultInputStyle, paddingX: 0, ...defaultInputsAutoComplete }}
                     options={posto}
-                    getOptionLabel={(option) => option.postorazaosocial || 'Posto'}
-                    onChange={(event, newValue) => { if (newValue) { handlePostoChange({ target: { value: newValue.postorazaosocial } }) } }}
+                    getOptionLabel={(option) => option.postonomefantasia || 'Posto'}
+                    onChange={(event, newValue) => {
+                        if (newValue) { handlePostoChange({ target: { value: newValue.postonomefantasia }}, setPostoDigitado, setDadosFormulario, dadosFormulario) }
+                    }}
                     renderOption={(props, option) => (
                         <li {...props} key={option.postoid}>
-                            {option.postorazaosocial}
+                            {option.postonomefantasia}
                         </li>
                     )}
                     renderInput={(params) => (
@@ -438,21 +343,19 @@ export default function CriarAbastecimentoIntegrado() {
                             {...params}
                             label='Posto'
                             value={postoDigitado}
-                            error={dadosFormulario.erro}
-                            helperText={dadosFormulario.erro ? 'Posto não encontrada' : ''}
-                            onBlur={verificarPosto}
+                            onBlur={() => verificarPosto(posto, postoDigitado, setPostoEcontrado, setDadosFormulario, dadosFormulario)}
                         />
                     )}
-                    filterOptions={(options, { inputValue }) => options.filter((option) => option.postorazaosocial.toLowerCase().includes(inputValue.toLowerCase())).slice(0, 5)}
+                    filterOptions={(options, { inputValue }) => options.filter((option) => option.postonomefantasia.toLowerCase().includes(inputValue.toLowerCase())).slice(0, 5)}
                 />
+
                 <Autocomplete
-                    sx={{
-                        ...defaultInputStyle, paddingX: 1,
-                        ...defaultInputsAutoComplete
-                    }}
+                    sx={{ ...defaultInputStyle, paddingX: 1, ...defaultInputsAutoComplete }}
                     options={produtos}
                     getOptionLabel={(option) => option.produtodescricao || 'Produto'}
-                    onChange={(event, newValue) => { if (newValue) { handleProdutosChange({ target: { value: newValue.produtodescricao } }) } }}
+                    onChange={(event, newValue) => {
+                        if (newValue) { handleProdutosChange({ target: { value: newValue.produtodescricao }}, setProdutosDigitado, setDadosFormulario, dadosFormulario) }
+                    }}
                     renderOption={(props, option) => (
                         <li {...props} key={option.produtoid}>
                             {option.produtodescricao}
@@ -461,11 +364,9 @@ export default function CriarAbastecimentoIntegrado() {
                     renderInput={(params) => (
                         <TextField
                             {...params}
-                            label='Produtos'
+                            label='Produto'
                             value={produtosDigitado}
-                            error={dadosFormulario.erro}
-                            helperText={dadosFormulario.erro ? 'Produto não encontrada' : ''}
-                            onBlur={verificarProdutos}
+                            onBlur={() => verificarProdutos(produtos, produtosDigitado, setProdutosEncontrados, setDadosFormulario, dadosFormulario)}
                         />
                     )}
                     filterOptions={(options, { inputValue }) => options.filter((option) => option.produtodescricao.toLowerCase().includes(inputValue.toLowerCase())).slice(0, 5)}
@@ -477,6 +378,9 @@ export default function CriarAbastecimentoIntegrado() {
                     label="Número Documento"
                     value={dadosFormulario.numeroDocumento}
                     error={errors.numeroDocumento}
+                    helperText={errors.numeroDocumento ? 'Digite um número de documento' : ''}
+                    onFocus={() => setErrors({ ...errors, numeroDocumento: false })}
+                    onBlur={() => setErrors({ ...errors, numeroDocumento: !dadosFormulario.numeroDocumento.trim()})}
                     onChange={(event) => handleChangeForNumber('numeroDocumento', event.target.value, formatNumberDefault)}
                     sx={{ ...defaultInputStyle, paddingX: 0, '& label.Mui-focused': { marginLeft: 0 } }}
                 />
@@ -491,6 +395,9 @@ export default function CriarAbastecimentoIntegrado() {
                     label="Quilometragem"
                     value={dadosFormulario.quilometragem}
                     error={errors.quilometragem}
+                    helperText={errors.quilometragem ? 'Digite uma quilometragem valída' : ''}
+                    onFocus={() => setErrors({ ...errors, quilometragem: false })}
+                    onBlur={() => setErrors({ ...errors, quilometragem: !dadosFormulario.quilometragem.trim() })}
                     onChange={(event) => handleChangeForNumber('quilometragem', event.target.value, formatNumberForKm)}
                     sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
                 />
@@ -501,16 +408,21 @@ export default function CriarAbastecimentoIntegrado() {
                     label="Litros"
                     value={dadosFormulario.litros}
                     error={errors.litros}
+                    helperText={errors.litros ? 'Quantidade de litros invalída' : ''}
+                    onFocus={() => setErrors({ ...errors, litros: false })}
+                    onBlur={() => setErrors({ ...errors, litros: !dadosFormulario.litros.trim() })}
                     onChange={(event) => handleChangeForNumber('litros', event.target.value, formatNumberForLitros)}
                     sx={{ ...defaultInputStyle, paddingX: 0, '& label.Mui-focused': { marginLeft: 0 } }}
                 />
                 <TextField
-                    id="valorUnitario"
                     label="Valor Unitário"
-                    value={dadosFormulario.valorUnitario}
+                    value={`R$ ${dadosFormulario.valorUnitario}`}
                     error={errors.valorUnitario}
+                    helperText={errors.valorUnitario ? 'Valor unitario invalído' : ''}
+                    onFocus={() => setErrors({ ...errors, valorUnitario: false })}
+                    onBlur={() => setErrors({ ...errors, valorUnitario: !dadosFormulario.valorUnitario.trim() })}
                     onChange={(event) => handleChangeForNumber('valorUnitario', event.target.value, formatNumberForValorUnitario)}
-                    sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
+                    sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 }, '& .css-1jy569b-MuiFormLabel-root-MuiInputLabel-root': { marginLeft: 1 } }}
                 />
             </RowForm>
 

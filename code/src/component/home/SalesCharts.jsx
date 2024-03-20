@@ -1,17 +1,51 @@
 import React from "react";
 import GraficoCombustivel from "../../assets/img/combustivel_1.svg";
-import GraficoCombustivel2 from '../../assets/img/combustivel_2.svg'
+import GraficoCombustivel2 from '../../assets/img/combustivel_2.svg';
+import styled from 'styled-components';
 
-const styleDash = {
-  width: 'auto',
-  minHeigh: '600px',
-  height: 'auto',
-  backgroundColor: '#fff',
-  display: 'flex',
-  justifyContent: 'space-around',
-  marginTop: '30px',
-  borderRadius: '10px'
-}
+const StyleDash = styled.div`
+  width: auto;
+  min-height: auto;
+  height: auto;
+  background-color: #fff;
+  display: flex;
+  justify-content: space-around;
+  margin-top: 30px;
+  border-radius: 10px;
+
+    @media (max-width: 606px) {
+      width: 100vw;
+      flex-direction: column;
+    }
+`;
+
+const ContagenTanque = styled.div`
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   flex-direction: column;
+   width: 100px;
+
+    @media (max-width: 606px) {
+      display: none;
+    }
+`
+
+const StyleImg = styled.div`
+  @media (max-width: 606px) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    background-color: red;
+  }
+
+  & > img {
+    @media (max-width: 606px) {
+      width: 300px;
+    }
+  }
+`
 
 const containerDash = {
   width: '450px',
@@ -23,7 +57,7 @@ const dadosDash = {
 
 function SalesCharts() {
   return (
-    <div style={{ ...styleDash }}>
+    <StyleDash data-aos="fade-left">
 
       {/* Dashboard de galão */}
       <div style={{ ...containerDash }}>
@@ -31,7 +65,7 @@ function SalesCharts() {
           <p style={{ paddingTop: '20px', }}> Abastecimento Externo </p>
         </div>
         <div style={{ ...dadosDash }}>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', flexDirection: 'column', width: '100px' }}>
+          <ContagenTanque>
             <p>Cheio -</p>
             <p>-</p>
             <p>-</p>
@@ -42,12 +76,12 @@ function SalesCharts() {
             <p>-</p>
             <p>-</p>
             <p>-</p>
-            <p>Vazio -</p> 
-          </div>
+            <p>Vazio -</p>
+          </ContagenTanque>
           <div>
-            <div>
+            <StyleImg>
               <img src={GraficoCombustivel} alt="Teste SVG" />
-            </div>
+            </StyleImg>
             <div>
               <p style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', }}> 2.458.100,25 ltrs </p>
             </div>
@@ -61,7 +95,7 @@ function SalesCharts() {
           <p style={{ paddingTop: '20px', }}> Abastecimento Interno </p>
         </div>
         <div style={{ ...dadosDash }}>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', flexDirection: 'column', width: '100px' }}>
+          <ContagenTanque>
             <p>Cheio -</p>
             <p>-</p>
             <p>-</p>
@@ -73,11 +107,11 @@ function SalesCharts() {
             <p>-</p>
             <p>-</p>
             <p>Vazio -</p>
-          </div>
+          </ContagenTanque>
           <div>
-            <div>
+            <StyleImg>
               <img src={GraficoCombustivel2} alt="Teste SVG" />
-            </div>
+            </StyleImg>
             <div>
               <p style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', }}> 2.458.100,25 ltrs </p>
             </div>
@@ -85,7 +119,7 @@ function SalesCharts() {
         </div>
       </div>
 
-    </div>
+    </StyleDash>
   );
 }
 
