@@ -5,6 +5,7 @@ import logo from "../../assets/img/logo.png";
 import logoIcon from "../../assets/img/logo-icon.png";
 import arrowIcon from "../../assets/img/arrow-icon.svg";
 import Dropdown from "./Dropdown";
+import Cookies from 'js-cookie';
 
 /* icons menus lateral */
 import { IoDocumentTextOutline } from "react-icons/io5";
@@ -34,6 +35,8 @@ function Menu({ toggleMenu, menu }) {
   const logout = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('emailUsuario');
+    Cookies.remove('transportadoraId');
+    Cookies.remove('__StrictMode');
   }
 
   /* Recuperar o login do usario salvo no localstorage*/

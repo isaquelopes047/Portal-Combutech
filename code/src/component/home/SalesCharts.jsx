@@ -7,11 +7,12 @@ const StyleDash = styled.div`
   width: auto;
   min-height: auto;
   height: auto;
-  background-color: #fff;
+  background-color: #ffffff;
   display: flex;
   justify-content: space-around;
   margin-top: 30px;
   border-radius: 10px;
+  padding: 30px;
 
     @media (max-width: 606px) {
       width: 100vw;
@@ -36,22 +37,23 @@ const StyleImg = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100vw;
-    background-color: red;
+    width: 100%;
   }
 
   & > img {
+    width: 400px;
     @media (max-width: 606px) {
-      width: 300px;
+      width: 250px;
     }
   }
 `
 
 const containerDash = {
-  width: '450px',
+  width: 'auto',
 }
 
 const dadosDash = {
+  width: '100%',
   display: 'flex',
 }
 
@@ -78,7 +80,7 @@ function SalesCharts() {
             <p>-</p>
             <p>Vazio -</p>
           </ContagenTanque>
-          <div>
+          <div style={{width: '100%'}}>
             <StyleImg>
               <img src={GraficoCombustivel} alt="Teste SVG" />
             </StyleImg>
@@ -108,7 +110,7 @@ function SalesCharts() {
             <p>-</p>
             <p>Vazio -</p>
           </ContagenTanque>
-          <div>
+          <div style={{ width: '100%' }}>
             <StyleImg>
               <img src={GraficoCombustivel2} alt="Teste SVG" />
             </StyleImg>

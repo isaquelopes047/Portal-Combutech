@@ -1,10 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import ReactApexChart from 'react-apexcharts';
-import CircularProgress from '@mui/material/CircularProgress';
+import * as React from 'react';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import { Typography } from '@mui/material';
+import { Box } from '@mui/system';
+
+function createData(name, calories, fat, carbs, protein) {
+    return { name, calories, fat, carbs, protein };
+};
+
+const rows = [
+    createData('OLEO DIESEL S10', '2.213.798', '12.112.799,96', '5,472'),
+    createData('OLEO DIESEL S500', '1.788,80', '10.272,58', '5,743'),
+    createData('ARLA 32', '6,00', '510,00', '85,000'),
+    createData('ARLA', '842,70', '3.025,17', '3,590'),
+    createData('', '2.216.435,70', '12.126.607,71', '5,471'),
+];
 
 const DefaultContainer = {
     width: '100%',
-    height: '400px',
+    height: 'auto',
     backgroundColor: '#fff',
     marginTop: '30px',
     borderRadius: '10px',
@@ -14,84 +33,45 @@ const DefaultContainer = {
         marginLeft: '30px',
         marginTop: '20px',
     }
-}
+};
 
-const DolarToRealChart = () => {
-    const [loading, setLoading] = useState(true);
-    const [chartData, setChartData] = useState({
-        series: [],
-        options: {
-            chart: {
-                height: 350,
-                type: 'line',
-                zoom: {
-                    enabled: true
-                }
-            },
-            dataLabels: {
-                enabled: false
-            },
-            stroke: {
-                curve: 'smooth'
-            },
-            xaxis: {
-                type: 'datetime'
-            }
-        }
-    });
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const currentDate = new Date();
-                const thirtyDaysAgo = new Date(currentDate.getTime() - 30 * 24 * 60 * 60 * 1000);
-                const formattedDate = `${thirtyDaysAgo.getDate()}/${thirtyDaysAgo.getMonth() + 1}/${thirtyDaysAgo.getFullYear()}`;
-
-                const apiUrl = `https://api.bcb.gov.br/dados/serie/bcdata.sgs.10813/dados?formato=json&dataInicial=${formattedDate}`;
-
-                const response = await fetch(apiUrl);
-                const data = await response.json();
-
-                const last30DaysData = data.filter(entry => {
-                    const entryDate = new Date(entry.data.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1'));
-                    return entryDate >= thirtyDaysAgo && entryDate <= currentDate;
-                });
-
-                const chartDataFormatted = last30DaysData.map(entry => ({
-                    x: new Date(entry.data.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1')).getTime(),
-                    y: parseFloat(entry.valor)
-                }));
-
-                setChartData({
-                    ...chartData,
-                    series: [{
-                        name: 'USD to BRL',
-                        data: chartDataFormatted
-                    }]
-                });
-                setLoading(false);
-            } catch (error) {
-                console.error('Erro ao buscar dados da API do Banco Central do Brasil:', error);
-            }
-        };
-
-        fetchData();
-    }, []);
-
+const RankingProdutos = () => {
     return (
-        <div style={DefaultContainer}>
-            <div style={DefaultContainer.titleChart}>
-                <p>Cotação do dolar</p>
+        <>
+            <div style={DefaultContainer}>
+                <TableContainer component={Paper}>
+                    <Box sx={{ margin: '20px', }}>
+                        <Typography> Ranking de Produtos </Typography>
+                    </Box>
+                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Produtos</TableCell>
+                                <TableCell align="right">Volume (L)</TableCell>
+                                <TableCell align="right">Custo Total (R$)</TableCell>
+                                <TableCell align="right">Preço Médio/L</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {rows.map((row) => (
+                                <TableRow
+                                    key={row.name}
+                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                >
+                                    <TableCell component="th" scope="row">
+                                        {row.name}
+                                    </TableCell>
+                                    <TableCell align="right">{row.calories}</TableCell>
+                                    <TableCell align="right">{row.fat}</TableCell>
+                                    <TableCell align="right">{row.carbs}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
             </div>
-            <div id="chart">
-                {loading ? 
-                    <CircularProgress /> : 
-                    <ReactApexChart options={chartData.options} series={chartData.series} type="area" height={350}
-                />}
-            </div>
-            <div id="html-dist"></div>
-        </div>
+        </>
     );
 };
 
-export default DolarToRealChart;
+export default RankingProdutos;

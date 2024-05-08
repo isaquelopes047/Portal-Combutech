@@ -1,5 +1,19 @@
-import * as React from 'react';
-import { useEffect } from 'react'
+
+import React, { useState, useEffect } from 'react';
+import UtilBar from "../../UtilBar/UtilBar";
+import PrimatyTable from "../../Tables/PrimatyTable";
+import OptionsButton from "../../OptionButton";
+import DefautlLoadingTable from '../../loadings/loadingsTables/defaultLoadingTables';
+import base from '../../../hooks/BaseUrlApi';
+import Cookies from 'js-cookie';
+import Typography from '@mui/material/Typography';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import Checkbox from '@mui/material/Checkbox';
+import Autocomplete from '@mui/material/Autocomplete';
+import Stack from '@mui/material/Stack';
+
 import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
 import { styled } from '@mui/system';
 import { FaRegFilePdf } from "react-icons/fa";
@@ -8,24 +22,12 @@ import { FaPlusCircle } from "react-icons/fa";
 import { RiErrorWarningFill } from "react-icons/ri";
 import { useNavigate } from 'react-router-dom';
 import { IoIosCheckmarkCircle } from "react-icons/io";
-import { useState } from 'react';
+import { BiSolidArrowFromTop } from "react-icons/bi";
 import { FaPencil } from "react-icons/fa6";
 import { TbEyeSearch } from "react-icons/tb";
 import { FaFilter } from "react-icons/fa";
 import { BiSolidArrowToTop } from "react-icons/bi";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { BiSolidArrowFromTop } from "react-icons/bi";
-import UtilBar from "../../UtilBar/UtilBar";
-import PrimatyTable from "../../Tables/PrimatyTable";
-import OptionsButton from "../../OptionButton";
-import Typography from '@mui/material/Typography';
-import Modal from '@mui/material/Modal';
-import SearchIcon from '@mui/icons-material/Search';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import DefautlLoadingTable from '../../loadings/loadingsTables/defaultLoadingTables';
-import Checkbox from '@mui/material/Checkbox';
-import base from '../../../hooks/BaseUrlApi';
 
 const columns = [
     { id: 'Options', label: `Opções`, minWidth: 100 },
@@ -59,7 +61,40 @@ const style = {
     p: 4,
 };
 
+const defaultInputStyle = {
+    flex: 1,
+    marginTop: 1.5,
+    height: '65px',
+    '& input': {
+        marginLeft: 0,
+        backgroundColor: '#fff',
+        border: 0,
+        paddingLeft: 1,
+    },
+    '& input:focus': {
+        backgroundColor: '#fff',
+        border: 0,
+    }
+};
+
+const defaultInputsAutoComplete = {
+    '& label.Mui-focused': { paddingLeft: 0 },
+    '& .css-16e8wmc-MuiAutocomplete-root, & .MuiOutlinedInput-root, & .MuiAutocomplete-input': { paddingLeft: 1, paddingTop: 0, height: '40px' },
+    '& .css-1q60rmi-MuiAutocomplete-endAdornment': { top: 0 },
+    '& .MuiAutocomplete-hasPopupIcon.css-6c6kjn-MuiAutocomplete-root, & .MuiOutlinedInput-root, & .MuiAutocomplete-hasClearIcon.css-6c6kjn-MuiAutocomplete-root, & .MuiOutlinedInput-root': { height: '50px' },
+    '& .MuiButtonBase-root, & .MuiIconButton-root & .MuiIconButton-sizeMedium & .MuiAutocomplete-popupIndicator & .css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator': { display: 'none' },
+    '& .label.Mui-focused': { marginTop: 50 }
+};
+
 export default function MainAbastecimentoIntegrado() {
+    
+    const [transportadorasDados, setTransportadorasDados] = useState([]);
+    const [transportadoraId, setTransportadoraId] = useState(Cookies.get('transportadoraId'));
+    const [transportadoraName, setTransportadoraName] = useState('');
+    const [strictUser, setStrictUser] = useState(Cookies.get('__StrictMode'));
+
+    const [pagina, setPagina] = useState(1);
+    const [countPages, setCountPages] = React.useState(10);
     const [sortedRows, setSortedRows] = useState([]);
     const [dadosOriginais, setDadosOriginais] = useState([]);
     const [filtro, setFiltro] = useState('');
@@ -80,49 +115,17 @@ export default function MainAbastecimentoIntegrado() {
         }
     };
 
-    /* GET dos dados */
-    useEffect(() => {
-        const url = `${base.URL_BASE_API}/IntegracaoAbastecimento/Integrados`;
-        const authToken = localStorage.getItem('authToken');
-        const transportadoraValue = localStorage.getItem('transportadora');
+    const handleChange = (event) => {
+        setCountPages(event.target.value);
+    };
 
-        const headers = {
-            'Authorization': `Bearer ${authToken}`,
-            'Content-Type': 'application/json'
-        };
+    const handleAdd = () => {
+        setPagina(prevPagina => Math.max(prevPagina + 1, 1));
+    };
 
-        const transportadoraId = {
-            transportadoraId: [transportadoraValue]
-        };
-
-        fetch(url, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(transportadoraId)
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Erro na requisição. Código de status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                const sortedData = [...data.data].sort((a, b) => {
-                    const dateA = new Date(a.abastecimentoDateTime.replace(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}:\d{2}:\d{2})/, '$3-$2-$1T$4'));
-                    const dateB = new Date(b.abastecimentoDateTime.replace(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}:\d{2}:\d{2})/, '$3-$2-$1T$4'));
-                    return dateB - dateA;
-                });
-                setSortedRows(sortedData);
-                console.log(sortedData)
-                setDadosOriginais(sortedData);
-            })
-            .catch(error => {
-                console.error(error);
-            })
-            .finally(() => {
-                setDadosLoading(false);
-            });
-    }, []);
+    const handleReduce = () => {
+        setPagina(prevPagina => Math.max(prevPagina - 1, 1));
+    };
 
     const handleOpen = (row) => {
         setOpen(true);
@@ -146,10 +149,86 @@ export default function MainAbastecimentoIntegrado() {
         });
     };
 
-    const handleChangeFiltro = (event) => {
-        const valorFiltro = event.target.value;
-        setFiltro(valorFiltro);
+    const handleAutocompleteChange = (event, value) => {
+        if (value) {
+            const transportadoraSelecionada = transportadorasDados.find(transportadora => transportadora.transportadorarazaosocial === value);
+            if (transportadoraSelecionada) {
+                const idSelecionado = transportadoraSelecionada.transportadoraid;
+                const nomeSelecionado = transportadoraSelecionada.transportadorarazaosocial;
+                Cookies.set('transportadoraId', idSelecionado);
+                Cookies.set('__StritCompany', nomeSelecionado);
+                setTransportadoraId(idSelecionado);
+            }
+        }
     };
+
+    /* GET DE TRANSPORTADORAS */
+    useEffect(() => {
+        const buscarDados = async () => {
+            try {
+                setDadosLoading(true);
+                const authToken = localStorage.getItem('authToken');
+                const __StrictMode = Cookies.get('__StrictMode');
+
+                if (__StrictMode === '0') {
+                    const url = `${base.URL_BASE_API}/Transportadora/BuscaTransportadoras`;
+                    const headers = { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' };
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: headers,
+                    });
+                    if (!response.ok) { throw new Error(`Erro na requisição. Código de status: ${response.status}`)};
+                    const data = await response.json();
+                    setTransportadorasDados(data.data);
+                }
+
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setDadosLoading(false);
+            }
+        };
+
+        buscarDados();
+    }, []);
+
+    /* GET dos dados */
+    useEffect(() => {
+        const buscarDados = async () => {
+            try {
+                setDadosLoading(true);
+                const url = `${base.URL_BASE_API}/IntegracaoAbastecimento/Integrados`;
+                const authToken = localStorage.getItem('authToken');
+                const transportadoraValue = Cookies.get('transportadoraId');
+
+                const headers = {
+                    'Authorization': `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                };
+                const transportadoraId = {
+                    transportadoraId: [transportadoraValue],
+                    quantidadePorPagina: countPages,
+                    pagina: pagina,
+                };
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(transportadoraId)
+                });
+                if (!response.ok) {
+                    throw new Error(`Erro na requisição. Código de status: ${response.status}`);
+                };
+                const data = await response.json();
+                setSortedRows(data.data);
+                setDadosOriginais(data.data);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setDadosLoading(false);
+            }
+        };
+        buscarDados();
+    }, [pagina, countPages, transportadoraId]);
 
     useEffect(() => {
         // Filtrar os dados com base no filtro
@@ -220,20 +299,30 @@ export default function MainAbastecimentoIntegrado() {
                     </MenuItem>
                 </OptionsButton>
 
-                <TextField
-                    helperText=" "
-                    id="outlined-basic"
-                    variant="outlined"
-                    label="Pesquisar"
-                    InputProps={{
-                        startAdornment: (
-                            <SearchIcon sx={{ marginRight: 1, color: 'action.active' }} />
-                        ),
-                    }}
-                    sx={{ width: '260px' }}
-                    value={filtro}
-                    onChange={handleChangeFiltro}
-                />
+                {
+                    strictUser == 0 ? 
+                        <Stack spacing={2} sx={{ width: 300 }}>
+                            <Autocomplete
+                                sx={{ ...defaultInputStyle, paddingX: 1, ...defaultInputsAutoComplete }}
+                                options={transportadorasDados.map((option) => option.transportadorarazaosocial)}
+                                value={Cookies.get('__StritCompany')}
+                                onChange={handleAutocompleteChange}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        label="Pesquisar transportadoras"
+                                        InputProps={{
+                                            ...params.InputProps,
+                                            type: 'search',
+                                        }}
+                                    />
+                                )}
+                            />
+                        </Stack> 
+                    : 
+                    null
+                } 
+
             </div>
             {dadosLoading ? (
                 <DefautlLoadingTable />
@@ -244,6 +333,11 @@ export default function MainAbastecimentoIntegrado() {
                     rowsLength={sortedRows.length}
                     idChavePrincipal='abastecimentoId'
                     idKey="abastecimentoId"
+                    more={handleAdd}
+                    less={handleReduce}
+                    numberPage={pagina}
+                    quantidadeRegistro={countPages}
+                    handleChange={handleChange}
                     opcoesSubMenu={(rowId) => (
                         <>
                             <MenuItem onClick={() => handleRowDetalhes(rowId)} style={{ display: 'flex', alignItems: 'center', }}>
@@ -258,7 +352,6 @@ export default function MainAbastecimentoIntegrado() {
                     )}
                 />
             )}
-
         </div>
 
         <Modal

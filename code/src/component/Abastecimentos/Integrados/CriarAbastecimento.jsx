@@ -1,8 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { Autocomplete } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import LinearDeterminate from '../../loadings/progressBar/progressBar';
 import styled from 'styled-components';
@@ -15,6 +11,10 @@ import base from '../../../hooks/BaseUrlApi';
 import 'moment/locale/pt-br';
 import 'dayjs/locale/en-gb';
 
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { Autocomplete } from '@mui/material';
 import { formatNumberForKm, formatNumberDefault, formatNumberForLitros, formatNumberForValorUnitario } from './formatters'
 import { handlePlacaChange, verificarPlaca } from './funcoesUtilitarias/PlacaVeiculo';
 import { handleMotoristaChange, verificarMotorista } from './funcoesUtilitarias/Motorista';
@@ -229,7 +229,7 @@ export default function CriarAbastecimentoIntegrado() {
                     typeAlert: 'success',
                     show: true
                 });
-                /*  setTimeout(() => { window.location.reload() }, 3000); */
+                setTimeout(() => { window.location.reload() }, 3000);
             })
             .catch(error => {
                 setAlert({
@@ -278,6 +278,7 @@ export default function CriarAbastecimentoIntegrado() {
                         />
                     </Stack>
                 </LocalizationProvider>
+                
                 <Autocomplete
                     sx={{ ...defaultInputStyle, paddingX: 1, ...defaultInputsAutoComplete }}
                     options={placasVeiculo}

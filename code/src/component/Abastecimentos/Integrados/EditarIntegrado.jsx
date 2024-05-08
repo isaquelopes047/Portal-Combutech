@@ -54,7 +54,6 @@ const defaultInputStyle = {
 export default function EditarIntegrado() {
     const location = useLocation();
     const [dadosItemParam, setDadosItemParam] = React.useState(null);
-    console.log('dadosParam', dadosItemParam)
     const [dadosFormulario, setDadosFormulario] = React.useState({
         abastecimentoDateTime: null,
         veiculoPlaca: '',

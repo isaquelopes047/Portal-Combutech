@@ -1,13 +1,16 @@
 import React from "react";
 import profile from "../../assets/img/profile-pic.png";
+import Cookies from 'js-cookie';
 import { Link } from "react-router-dom";
 
 const logout = () => {
   localStorage.removeItem('authToken');
   localStorage.removeItem('emailUsuario');
   localStorage.removeItem('transportadora');
-  localStorage.removeItem('optionsMenu');
-}
+  localStorage.removeItem('optionsMenu'); 
+  Cookies.remove('transportadoraId', { path: '/' });
+  Cookies.remove('__StrictMode', { path: '/' });
+} 
 
 function Author({ subNav, setSubNav, title }) {
   return (

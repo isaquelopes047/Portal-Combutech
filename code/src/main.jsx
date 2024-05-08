@@ -10,12 +10,14 @@ import "./assets/js/main.js";
 import "react-daypicker/lib/DayPicker.css";
 
 import AOS from 'aos';
-import 'aos/dist/aos.css'; 
+import 'aos/dist/aos.css';
+
+
 
 AOS.init();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <App />
+      <App />
   </React.StrictMode>
 );

@@ -1,91 +1,121 @@
-import { useEffect } from 'react'
+
+import React, { useState, useEffect } from 'react';
+import UtilBar from "../../UtilBar/UtilBar";
+import PrimatyTable from "../../Tables/PrimatyTable";
+import OptionsButton from "../../OptionButton";
+import DefautlLoadingTable from '../../loadings/loadingsTables/defaultLoadingTables';
+import base from '../../../hooks/BaseUrlApi';
+import Cookies from 'js-cookie';
+import SearchIcon from '@mui/icons-material/Search';
+import TextField from '@mui/material/TextField';
+
 import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
 import { styled } from '@mui/system';
 import { FaRegFilePdf } from "react-icons/fa";
 import { RiFileExcelLine } from "react-icons/ri";
 import { FaPlusCircle } from "react-icons/fa";
-import { BiSolidArrowToTop } from "react-icons/bi";
+import { useNavigate } from 'react-router-dom';
 import { BiSolidArrowFromTop } from "react-icons/bi";
-import { useState } from 'react';
 import { FaPencil } from "react-icons/fa6";
 import { TbEyeSearch } from "react-icons/tb";
-import { useNavigate } from 'react-router-dom';
 import { FaFilter } from "react-icons/fa";
-import UtilBar from "../../UtilBar/UtilBar";
-import OptionsButton from "../../OptionButton";
-import PrimatyTable from "../../Tables/PrimatyTable";
-import DefautlLoadingTable from '../../loadings/loadingsTables/defaultLoadingTables';
-import TextField from '@mui/material/TextField';
-import SearchIcon from '@mui/icons-material/Search';
+import { BiSolidArrowToTop } from "react-icons/bi";
 import { GiHamburgerMenu } from "react-icons/gi";
 
 const columns = [
-    { id: 'Options', label: `Options`, minWidth: 100 },
-    { id: 'postotipopessoa', label: 'Tipo de Pessoa', minWidth: 170 },
-    { id: 'postorazaosocial', label: 'Razão Social', minWidth: 170 },
-    { id: 'postonomefantasia', label: 'Nome Fantasia', minWidth: 170 },
-    { id: 'postocnpj', label: 'CNPJ', minWidth: 170 },
-    { id: 'postoinscricaoestadual', label: 'Inscrição Estadual', minWidth: 170 },
-    { id: 'postouf', label: 'UF', minWidth: 170 },
-    { id: 'postocidade', label: 'Cidade', minWidth: 170 },
-    { id: 'postobairro', label: 'Bairro', minWidth: 170 },
-    { id: 'postotelefone', label: 'Telefone', minWidth: 170 },
-    { id: 'postocelular', label: 'Celular', minWidth: 170 },
-    { id: 'postoemail', label: 'Email', minWidth: 170 },
-    { id: 'postoatividade', label: 'Atividade', minWidth: 170 },
-    { id: 'postoconveniado', label: 'Posto Conveniado', minWidth: 170 },
-    { id: 'postosituacao', label: 'Situação', minWidth: 170 },
-    { id: 'postorecebermanifestacao', label: 'Receber Menifestação', minWidth: 170 },
+    { id: 'Options', label: `Opções`, minWidth: 0 },
+    { id: 'motoristanome', label: 'Nome Completo', minWidth: 170 },
 ];
 
-export default function MainPostos() {
+export default function MainAbastecimentoIntegrado() {
 
+    const [pagina, setPagina] = useState(1);
+    const [countPages, setCountPages] = React.useState(10);
     const [sortedRows, setSortedRows] = useState([]);
-    const [sortOrder, setSortOrder] = useState('asc');
     const [dadosOriginais, setDadosOriginais] = useState([]);
     const [filtro, setFiltro] = useState('');
+    const [allDados, setAllDados] = useState([]);
+    const [sortOrder, setSortOrder] = useState('asc');
+    const [selectedRow, setSelectedRow] = useState(null);
     const [dadosLoading, setDadosLoading] = useState(true);
     const [open, setOpen] = useState(false);
     const handleClose = () => setOpen(false);
     const navigate = useNavigate();
-    const iconsSize = 20;
+    const iconsSize = 25;
+
+    const handleChange = (event) => {
+        setCountPages(event.target.value);
+    };
+
+    const handleAdd = () => {
+        setPagina(prevPagina => Math.max(prevPagina + 1, 1));
+    };
+
+    const handleReduce = () => {
+        setPagina(prevPagina => Math.max(prevPagina - 1, 1));
+    };
 
     const handleOpen = (row) => {
         setOpen(true);
         setSelectedRow(row);
     };
 
+    const sortRows = (property) => {
+        const sorted = [...sortedRows].sort((a, b) => {
+            const comparison = a[property] - b[property];
+            return sortOrder === 'asc' ? comparison : -comparison;
+        });
+
+        setSortedRows(sorted);
+        setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
+    };
+
+    const handleRowDetalhes = (idAbastecimento) => {
+        const rowData = sortedRows.find(row => row.abastecimentoId === idAbastecimento);
+        navigate(`/auth/abastecimentos/integrados/edit/${idAbastecimento}`, {
+            state: { dados: rowData }
+        });
+    };
+
+    const handleChangeFiltro = (event) => {
+        const valorFiltro = event.target.value;
+        setFiltro(valorFiltro);
+    };
+
     /* GET dos dados */
     useEffect(() => {
-        const url = 'http://localhost:86/api/Posto/BuscaPostos';
-        const authToken = localStorage.getItem('authToken');
+        const buscarDados = async () => {
+            try {
+                const transportadoraValue = Cookies.get('transportadoraId');
+                const url = `${base.URL_BASE_API}/Motorista/BuscaMotoristasPorTransportadora/${transportadoraValue}`;
+                const authToken = localStorage.getItem('authToken');
+                const headers = { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' };
 
-        const headers = {
-            'Authorization': `Bearer ${authToken}`,
-            'Content-Type': 'application/json'
-        };
+                // Removendo o corpo da requisição
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: headers
+                });
 
-        fetch(url, {
-            method: 'GET',
-            headers: headers,
-        })
-            .then(response => {
                 if (!response.ok) {
                     throw new Error(`Erro na requisição. Código de status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                setSortedRows(data.data || []);
-                setDadosOriginais(data.data);
-            })
-            .catch(error => {
+                };
+
+                const data = await response.json();
+
+                const sortedData = [...data.data].reverse();
+
+                setSortedRows(sortedData);
+                setDadosOriginais(sortedData);
+
+            } catch (error) {
                 console.error(error);
-            })
-            .finally(() => {
+            } finally {
                 setDadosLoading(false);
-            });
-    }, []);
+            }
+        };
+        buscarDados();
+    }, [pagina, countPages]);
 
     useEffect(() => {
         // Filtrar os dados com base no filtro
@@ -104,33 +134,10 @@ export default function MainPostos() {
         }
     }, [filtro, dadosOriginais]);
 
-    const sortRows = (property) => {
-        const sorted = [...sortedRows].sort((a, b) => {
-            const comparison = a[property].localeCompare(b[property]);
-            return sortOrder === 'asc' ? comparison : -comparison;
-        });
-
-        setSortedRows(sorted);
-        setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
-    };
-
-    const handleRowDetalhes = (postoid) => {
-        const rowData = sortedRows.find(row => row.postoid === postoid);
-        navigate(`/cadastros/veiculos/edit/${postoid}`, {
-            state: { dados: rowData }
-        });
-    };
-
-    const handleChangeFiltro = (event) => {
-        const valorFiltro = event.target.value;
-        setFiltro(valorFiltro);
-    };
-
     return <>
-        {/* Menu superior de opções */}
         <UtilBar titleButton={<GiHamburgerMenu />}>
             <MenuItem>
-                <a href="#">
+                <a href="/auth/abastecimentos/integrados/cad">
                     <FaPlusCircle size={iconsSize} />
                     Criar Registro
                 </a>
@@ -145,15 +152,14 @@ export default function MainPostos() {
             </MenuItem>
         </UtilBar>
 
-        {/* Importação da tabela recebendo os dados por props */}
-        <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0' }}>
+        <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0' }} data-aos="fade-up">
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <OptionsButton titleOption={<FaFilter />}>
-                    <MenuItem onClick={() => sortRows('abastecimentoId')}>
+                    <MenuItem onClick={() => sortRows('motoristaid')}>
                         <BiSolidArrowToTop />
                         Crescente
                     </MenuItem>
-                    <MenuItem onClick={() => sortRows('abastecimentoId')}>
+                    <MenuItem onClick={() => sortRows('motoristaid')}>
                         <BiSolidArrowFromTop />
                         Descrecente
                     </MenuItem>
@@ -174,7 +180,6 @@ export default function MainPostos() {
                     onChange={handleChangeFiltro}
                 />
             </div>
-
             {dadosLoading ? (
                 <DefautlLoadingTable />
             ) : (
@@ -182,8 +187,13 @@ export default function MainPostos() {
                     dadosCollunas={columns}
                     dadosRows={sortedRows}
                     rowsLength={sortedRows.length}
-                    idChavePrincipal='postoid'
-                    idKey="postoid"
+                    idChavePrincipal='motoristaid'
+                    idKey="motoristaid"
+                    more={handleAdd}
+                    less={handleReduce}
+                    numberPage={pagina}
+                    quantidadeRegistro={countPages}
+                    handleChange={handleChange}
                     opcoesSubMenu={(rowId) => (
                         <>
                             <MenuItem onClick={() => handleRowDetalhes(rowId)} style={{ display: 'flex', alignItems: 'center', }}>
@@ -198,6 +208,7 @@ export default function MainPostos() {
                     )}
                 />
             )}
+
         </div>
     </>
 }

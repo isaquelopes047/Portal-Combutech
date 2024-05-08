@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import AlertLoginError from "../Alerts/LoginAlertError";
 
 function LoginForm({ onLogin, AlertError }) {
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleEmailChange = (event) => {
     const newEmail = event.target.value;
@@ -21,6 +21,10 @@ function LoginForm({ onLogin, AlertError }) {
     onLogin({ email, password });
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <>
       <div className="crancy-wc__heading">
@@ -29,7 +33,6 @@ function LoginForm({ onLogin, AlertError }) {
         </h3>
       </div>
       <form className="crancy-wc__form-main" >
-        {/* <!-- Form Group --> */}
         <div className="form-group">
           <div className="form-group__input">
             <input
@@ -40,30 +43,28 @@ function LoginForm({ onLogin, AlertError }) {
               onChange={handleEmailChange}
               value={email}
               required="required"
-              style={{width: '450px',}}
+              style={{ width: '450px' }}
             />
           </div>
         </div>
-        {/* <!-- Form Group --> */}
         <div className="form-group">
           <div className="form-group__input">
             <input
               className="crancy-wc__form-input"
               placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
               id="password-field"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               name="password"
               maxLength="8"
               onChange={handleSenhaChange}
               value={password}
               required="required"
             />
-            <span className="crancy-wc__toggle">
-              <i className="fas fa-eye" id="toggle-icon"></i>
+            <span className="crancy-wc__toggle" onClick={togglePasswordVisibility}>
+              <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`} id="toggle-icon"></i>
             </span>
           </div>
         </div>
-        {/* <!-- Form Group --> */}
         <div className="form-group">
           <div className="crancy-wc__check-inline">
             <div className="crancy-wc__checkbox">
@@ -82,7 +83,7 @@ function LoginForm({ onLogin, AlertError }) {
             </div>
           </div>
         </div>
-        <a className="crancy-btn__default full-width-btn" style={{width: '100%',}} onClick={handleLogin}>Login</a>
+        <a className="crancy-btn__default full-width-btn" style={{ width: '100%' }} onClick={handleLogin}>Login</a>
         <div className="form-group" style={{ height: '60px', display: AlertError }}>
           <AlertLoginError />
         </div>

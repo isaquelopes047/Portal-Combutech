@@ -4,16 +4,27 @@ import SalesCharts from "../../component/home/SalesCharts";
 import Layout from "../../component/home/Layout";
 import BodyWrapper from "../../component/home/BodyWrapper";
 import useMenu from "../../hooks/useMenu";
-import ChartDolar from "../../component/home/DolarChart";
+import RankingProdutos from "../../component/home/DolarChart";
+import RankingMotoristas from "../../component/home/RankingMotorista";
+import Cookies from 'js-cookie';
+
 
 function Home() {
   useMenu();
+
+  const transportadoraId = Cookies.get('transportadoraId');
+
   return (
     <Layout>
       <BodyWrapper>
-        <ProgressCom />
+
+        {
+          transportadoraId == 0 ? null : <ProgressCom />
+        } 
+
         <SalesCharts />
-        <ChartDolar />
+        <RankingProdutos />
+        <RankingMotoristas />
       </BodyWrapper>
     </Layout>
   );

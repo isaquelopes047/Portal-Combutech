@@ -5,7 +5,7 @@ import "react-circular-progressbar/dist/styles.css";
 function ProgressCard({ count, totalSale, progressSettings, name, color }) {
   return (
     <div className="col-xl-3 col-lg-6 col-md-6 col-12 mg-top-30" data-aos="fade-up-left">
-      <div className="crancy-progress-card">
+      <div className="crancy-progress-card" style={{width: '100%',}}>
         <div className="crancy-progress-card__content" style={{width: '100%'}}>
           <h4 className="crancy-progress-card__title">
             <b className="count-animate">{count}</b>

@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import LoginForm from "../../component/form/LoginForm";
 import { useNavigate } from 'react-router-dom';
 import base from '../../hooks/BaseUrlApi';
+import Cookies from 'js-cookie';
 
 function Login() {
+
   const navigate = useNavigate();
 
   const [AlertLogin, setAlertLogin] = useState('none');
@@ -43,11 +45,12 @@ function Login() {
         localStorage.setItem('emailUsuario', data.data.user.nome);
         localStorage.setItem('optionsMenu', modulosString);
 
-        /* Ferificação de transportadora */
-        if (data.data.user.transportadora === null){
-          localStorage.setItem('transportadora', 30)
+        /* Verificação de transportadora */
+        if (data.data.user.transportadora === null) {
+          Cookies.set('transportadoraId', 1, { secure: true, sameSite: 'strict' });
+          Cookies.set('__StrictMode', 0, { secure: true, sameSite: 'strict' });
         } else {
-          localStorage.setItem('transportadora', data.data.user.transportadora.transportadoraid)
+          Cookies.set('transportadoraId', data.data.user.transportadora.transportadoraid, { secure: true, sameSite: 'strict' });
         }
 
         navigate('/auth');

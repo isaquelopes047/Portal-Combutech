@@ -5,19 +5,26 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import { Dropdown } from '@mui/base/Dropdown';
 import { Menu } from '@mui/base/Menu';
 import { MenuButton as BaseMenuButton } from '@mui/base/MenuButton';
 import { styled } from '@mui/system';
 import { FiMenu } from "react-icons/fi";
+import TablePaginationDefault from '../menu/TablePagination';
 
 function OptionsButton({ opcoesSubMenu, row }) {
     return (
         <Dropdown>
-            <MenuButton sx={{ width: '40px', height: '40px', padding: 0, backgroundColor: '#1976d2', '&:hover': { backgroundColor: '#135ba1' }}} >
-                <FiMenu size={15} color='#fff'/>
+            <MenuButton sx={{ 
+                width: '40px', 
+                height: '40px', 
+                padding: 0, 
+                backgroundColor: '#ffffff', 
+                border: 'none', 
+                    '&:hover': { backgroundColor: '#f8f8f8' } 
+                }}>
+                <FiMenu size={15} color='#23638d' />
             </MenuButton>
             <Menu slots={{ listbox: Listbox }} style={{ width: '50px' }}>
                 {opcoesSubMenu(row)}
@@ -33,20 +40,11 @@ function OptionsButton({ opcoesSubMenu, row }) {
     dadosRows: (Set the rows of the table in importation)
     rowsLength: (Definition for the pagination)
     directionLink: (Link for to custom rota in the click on button of the edition)
-*/
+*/  
 
-export default function PrimatyTable({ dadosCollunas, dadosRows, rowsLength, opcoesSubMenu, idChavePrincipal }) {
+export default function PrimatyTable({ dadosCollunas, dadosRows, rowsLength, opcoesSubMenu, idChavePrincipal, more, less, numberPage, quantidadeRegistro, handleChange }) {
     const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(10);
-
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(+event.target.value);
-        setPage(0);
-    };
+    const [rowsPerPage, setRowsPerPage] = React.useState(30);
 
     return (
         <Paper sx={{ width: '100%', overflow: 'hidden' }}>
@@ -104,22 +102,12 @@ export default function PrimatyTable({ dadosCollunas, dadosRows, rowsLength, opc
                     </TableBody>
                 </Table>
             </TableContainer>
-            <TablePagination
-                rowsPerPageOptions={[10, 25, 100]}
-                component="div"
-                count={rowsLength}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-                labelRowsPerPage='Quantidade por pagína'
-                sx={{
-                    '& .css-78c6dr-MuiToolbar-root-MuiTablePagination-toolbar, & .MuiTablePagination-actions': {
-                        display: 'flex',
-                        flexDirection: 'row',
-                        marginRight: '43px',
-                    }
-                }}
+            <TablePaginationDefault 
+                more={more} 
+                less={less} 
+                numberPage={numberPage} 
+                quantidadeRegistro={quantidadeRegistro} 
+                handleChange={handleChange}
             />
         </Paper>
     );

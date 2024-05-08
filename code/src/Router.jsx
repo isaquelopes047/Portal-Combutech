@@ -1,6 +1,5 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/home";
-import HomeAnalytics from "./pages/home-analytics";
 import Layout from "./component/layout";
 
 import Error from "./pages/error";
@@ -10,6 +9,8 @@ import ForgetPassword from "./pages/forget-password";
 
 import CadastrosVeiculos from "./pages/cadastros/CadastrosVeiculos";
 import EditarVeiculo from "./pages/cadastros/EditVeiculo";
+
+import CadastroMotoristas from "./pages/cadastros/motoristas/CadastroMotoristas";
 
 import withAuth from "./hooks/TokenValidation";
 import AbastecimentosIntegrados from "./pages/Abastecimentos/Integrados/Integrados";
@@ -21,6 +22,9 @@ import CadastrosPostos from "./pages/cadastros/postos/postos";
 import AbastecimentoPosto from "./pages/Posto/Abastecimento/AbastecimentoPosto";
 import ConfirmPassword from "./pages/confirm-password";
 import Usuario from "./pages/usuario/usuario";
+import ValorNegociado from "./pages/Posto/ValorNegociado/ValorNegociado";
+import MainUsuarios from "./pages/Usuarios/usuarios";
+import MainDetalheUsuario from "./pages/Usuarios/detalhesUsuario";
 
 const router = createBrowserRouter([
   {
@@ -38,6 +42,10 @@ const router = createBrowserRouter([
       {
         path: "/confirm-password",
         element: <ConfirmPassword />,
+      },
+      {
+        path: "/termodeusoapp",
+        element: <ForgetPassword />,
       },
     ],
   },
@@ -85,7 +93,7 @@ const router = createBrowserRouter([
       },
       {
         path: "cadastros/motoristas",
-        element: <CadastrosVeiculos />,
+        element: <CadastroMotoristas />,
       },
       {
         path: "cadastros/motoristas/edit/:id",
@@ -152,7 +160,22 @@ const router = createBrowserRouter([
       {
         path: "posto/abastecimento",
         element: <AbastecimentoPosto />,
-      }
+      },
+      {
+        path: "posto/valornegociado",
+        element: <ValorNegociado />,
+      },
+
+      /* Usuario */
+      {
+        path: "usuarios/usuarios",
+        element: <MainUsuarios />,
+      },
+      {
+        path: "usuarios/usuarios/edit/:id",
+        element: <MainDetalheUsuario />,
+      },
+
     ],
   },
   {

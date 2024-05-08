@@ -208,7 +208,7 @@ export default function EditarNaoIntegrado() {
                 <Button onClick={handleSubmit} variant="contained" color="success" sx={{ height: 40 }}>
                     Atualizar
                 </Button>
-                <a href="/abastecimentos/naointegrados" style={{ backgroundColor: 'transparent', color: '#fff', }}>
+                <a href="/auth/abastecimentos/naointegrados" style={{ backgroundColor: 'transparent', color: '#fff', }}>
                     <Button sx={{ backgroundColor: 'grey', color: 'white', height: 40, marginLeft: 1 }}>
                         Voltar
                     </Button>
