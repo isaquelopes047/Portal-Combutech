@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import InputMask from "react-input-mask";
 import styled from 'styled-components';
@@ -7,6 +7,8 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import { BsInfoCircleFill } from "react-icons/bs";
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
 
 const RowForm = styled.div`
     width: 100%;
@@ -74,12 +76,81 @@ const style = {
 
 export default function AutorizacaoPosto() {
     const [inputValue, setInputValue] = useState('');
+    const [dadosAbastecimento, setDadosAbastecimento] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
     const [open, setOpen] = React.useState(false);
+    const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
+    const [alert, setAlert] = useState({
+        messageAlert: '',
+        typeAlert: '',
+        show: false
+    });
 
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
 
     const handleInputChange = (event) => { setInputValue(event.target.value) };
+
+    // Função para buscar os dados de abastecimento
+    const buscarDadosAbastecimento = async () => {
+        try {
+            const requestOptions = { method: 'GET', headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' } };
+            const response = await fetch(`https://api.combutech.com.br/api/Motorista/BuscaAbastecimentoMotoristaPorToken/${inputValue}`, requestOptions);
+            const data = await response.json();
+            setDadosAbastecimento(data.data);
+        } catch (error) { console.error('Erro ao buscar dados de abastecimento:', error) }
+    };
+
+    const autorizarAbastecimento = () => {
+        setIsLoading(true);
+        const headers = {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json'
+        };
+
+        fetch(`https://api.combutech.com.br/api/Posto/AutorizarAbastecimentoPorToken/${inputValue}`, {
+            method: 'GET',
+            headers: headers
+        })
+            .then(response => { if (!response.ok) { throw new Error('Erro ao criar abastecimento') } return response.json() })
+            .then(data => {
+                setAlert({
+                    messageAlert: "Token autorizado com sucesso!",
+                    typeAlert: 'success',
+                    show: true
+                });
+            })
+            .catch(error => {
+                setAlert({
+                    messageAlert: "Erro ao autorizar abastecimento, tente novamente em instantes ou procure o suporte.",
+                    typeAlert: 'error',
+                    show: true,
+                });
+            })
+            .finally(() => {
+                setIsLoading(false);
+            });
+    };
+
+    // Função para lidar com o clique no botão de autorização
+    const handleAutorizarClick = () => {
+        autorizarAbastecimento();
+    };
+
+    // Efeito para executar a busca quando o valor de inputValue mudar
+    useEffect(() => {
+        if (inputValue) {
+            buscarDadosAbastecimento();
+        }
+    }, [inputValue]);
+
+    // Função para lidar com a perda de foco no input
+    const handleInputBlur = () => {
+        // Verifica se o valor do input não está vazio antes de buscar os dados
+        if (inputValue) {
+            buscarDadosAbastecimento();
+        }
+    };
 
     return (
         <React.Fragment>
@@ -89,9 +160,10 @@ export default function AutorizacaoPosto() {
                     <BsInfoCircleFill color='#2d61dd' onClick={handleOpen} />
                 </div>
                 <InputMask
-                    mask="999999"
+                    mask="9999999999"
                     value={inputValue}
                     onChange={handleInputChange}
+                    onBlur={handleInputBlur}
                     style={{ border: 'none', outline: 'none' }}
                 >
                     {() => (
@@ -112,17 +184,17 @@ export default function AutorizacaoPosto() {
                 <RowForm>
                     <TextField
                         disabled
-                        id="nomeCompleto"
-                        label="Nome Completo"
-                        name="nomeCompleto"
+                        label="KM anterior"
+                        name="kmAnterios"
+                        value={dadosAbastecimento?.kmanterior ?? 'Km anterior'}
                         inputProps={{ style: { paddingLeft: '10px' } }}
                         sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
                     />
                     <TextField
                         disabled
-                        id="kmAtual"
-                        label="KM Atual"
+                        label="KM atual"
                         name="kmAtual"
+                        value={dadosAbastecimento?.quilometragem ?? 'Km atual'}
                         inputProps={{ style: { paddingLeft: '10px' } }}
                         sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
                     />
@@ -131,9 +203,9 @@ export default function AutorizacaoPosto() {
                 <RowForm>
                     <TextField
                         disabled
-                        id="totalAastecido"
-                        label="Total Abastecido"
-                        name="totalAastecido"
+                        label="Litros abastecidos"
+                        name="litrosAbastecidos"
+                        value={dadosAbastecimento?.litros ?? 'Litros abastecidos'}
                         inputProps={{ style: { paddingLeft: '10px' } }}
                         sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
                     />
@@ -142,7 +214,6 @@ export default function AutorizacaoPosto() {
                 <RowForm>
                     <TextField
                         disabled
-                        id="placaCaminhao"
                         label="Placa caminhão"
                         name="placaCaminhao"
                         inputProps={{ style: { paddingLeft: '10px' } }}
@@ -150,27 +221,47 @@ export default function AutorizacaoPosto() {
                     />
                     <TextField
                         disabled
-                        id="totalAutorizado"
-                        label="Total Autorizado"
-                        name="totalAutorizado"
+                        label="Media do abastecimento"
+                        name="tokenFornecido"
+                        value={dadosAbastecimento?.media ?? 'Media'}
                         inputProps={{ style: { paddingLeft: '10px' } }}
                         sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
                     />
                     <TextField
                         disabled
-                        id="tokenFornecido"
                         label="Token fornecido"
                         name="tokenFornecido"
+                        value={dadosAbastecimento?.token ?? 'Token fornecido'}
                         inputProps={{ style: { paddingLeft: '10px' } }}
                         sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
                     />
                 </RowForm>
             </div>
 
+            {isLoading ? (
+                <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 9999 }}>
+                    <CircularProgress />
+                </Box>
+            ) : (
+                alert.show && (
+                    <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
+                        <div>
+                            <Alert severity={alert.typeAlert}>{alert.messageAlert}</Alert>
+                            {!alert.messageAlert.startsWith('Erro')}
+                        </div>
+                    </div>
+                )
+            )}
+
             <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
                 <InputPesquisa>
-                    <Button variant="contained" color="success" sx={{ height: 40 }} disable>
-                        Autorizar
+                    <Button
+                        variant="contained"
+                        color="success"
+                        sx={{ height: 40 }}
+                        onClick={handleAutorizarClick}
+                    >
+                        {isLoading ? 'Carregando...' : 'Autorizar'}
                     </Button>
                 </InputPesquisa>
             </div>
