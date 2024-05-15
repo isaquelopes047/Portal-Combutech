@@ -8,23 +8,33 @@ import RankingProdutos from "../../component/home/DolarChart";
 import RankingMotoristas from "../../component/home/RankingMotorista";
 import Cookies from 'js-cookie';
 
-
 function Home() {
   useMenu();
 
   const transportadoraId = Cookies.get('transportadoraId');
+  const StrickPosto = Cookies.get('__StrictModePosto');
 
   return (
     <Layout>
       <BodyWrapper>
 
-        {
+        {/*         {
           transportadoraId == 0 ? null : <ProgressCom />
-        } 
+        }  */}
 
-        <SalesCharts />
-        <RankingProdutos />
-        <RankingMotoristas />
+        { StrickPosto == 1 ? (
+          <div style={{marginTop: '90px',}}>
+            <h1 className="welcome-title">Bem-vindo, Posto!</h1>
+            <p className="welcome-message">Estamos felizes em tê-lo aqui.</p>
+          </div>
+        ) : (
+          <div>
+            <SalesCharts />
+            <RankingProdutos />
+            <RankingMotoristas />
+          </div>
+        )}
+
       </BodyWrapper>
     </Layout>
   );

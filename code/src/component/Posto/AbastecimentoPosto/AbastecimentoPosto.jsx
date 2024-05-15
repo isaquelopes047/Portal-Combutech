@@ -6,9 +6,12 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
-import { BsInfoCircleFill } from "react-icons/bs";
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
+import IconButton from '@mui/material/IconButton';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import { BsInfoCircleFill } from "react-icons/bs";
+import Resizer from 'react-image-file-resizer';
 
 const RowForm = styled.div`
     width: 100%;
@@ -68,7 +71,7 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 600,
+    width: 'auto',
     bgcolor: 'background.paper',
     boxShadow: 24,
     p: 4,
@@ -78,7 +81,9 @@ export default function AutorizacaoPosto() {
     const [inputValue, setInputValue] = useState('');
     const [dadosAbastecimento, setDadosAbastecimento] = useState({});
     const [isLoading, setIsLoading] = useState(false);
-    const [open, setOpen] = React.useState(false);
+    const [openModalInfo, setOpenModalInfo] = React.useState(false);
+    const [openModalPhoto, setOpenModalPhoto] = React.useState(false);
+    const [imagemRedimensionada, setImagemRedimensionada] = useState(null);
     const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
     const [alert, setAlert] = useState({
         messageAlert: '',
@@ -86,18 +91,67 @@ export default function AutorizacaoPosto() {
         show: false
     });
 
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
+    const resizeImage = (imageData) => {
+        return new Promise((resolve, reject) => {
+            // Convertendo a string base64 para um Blob
+            const byteCharacters = atob(imageData);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: 'image/jpeg' });
 
-    const handleInputChange = (event) => { setInputValue(event.target.value) };
+            Resizer.imageFileResizer(
+                blob,
+                400,
+                500,
+                'JPEG',
+                80,
+                0,
+                (uri) => {
+                    resolve(uri);
+                },
+                'base64'
+            );
+        });
+    };
 
-    // Função para buscar os dados de abastecimento
+    // Função para carregar e redimensionar a imagem
+    const loadAndResizeImage = async () => {
+        if (dadosAbastecimento?.imagens.length > 0) {
+            try {
+                const resizedImage = await resizeImage(dadosAbastecimento.imagens[0]);
+                console.log(resizedImage)
+                setImagemRedimensionada(resizedImage);
+            } catch (error) {
+                console.error('Erro ao redimensionar imagem:', error);
+                console.log(dadosAbastecimento.imagens[0])
+            }
+        }
+    };
+
+    useEffect(() => {
+        loadAndResizeImage();
+    }, [dadosAbastecimento]);
+
+    const handleModalInfoOpen = () => setOpenModalInfo(true);
+    const handleModalInfoCLose = () => setOpenModalInfo(false);
+
+    const handleOpen = () => setOpenModalPhoto(true);
+    const handleClose = () => setOpenModalPhoto(false);
+
+    const handleInputChange = (event) => {
+        setInputValue(event.target.value)
+    };
+
     const buscarDadosAbastecimento = async () => {
         try {
             const requestOptions = { method: 'GET', headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' } };
             const response = await fetch(`https://api.combutech.com.br/api/Motorista/BuscaAbastecimentoMotoristaPorToken/${inputValue}`, requestOptions);
             const data = await response.json();
             setDadosAbastecimento(data.data);
+
         } catch (error) { console.error('Erro ao buscar dados de abastecimento:', error) }
     };
 
@@ -119,6 +173,12 @@ export default function AutorizacaoPosto() {
                     typeAlert: 'success',
                     show: true
                 });
+                setTimeout(() => {
+                    setDadosAbastecimento('')
+                }, 5000)
+                setTimeout(() => {
+                    location.reload()
+                }, 10000)
             })
             .catch(error => {
                 setAlert({
@@ -132,19 +192,10 @@ export default function AutorizacaoPosto() {
             });
     };
 
-    // Função para lidar com o clique no botão de autorização
     const handleAutorizarClick = () => {
         autorizarAbastecimento();
     };
 
-    // Efeito para executar a busca quando o valor de inputValue mudar
-    useEffect(() => {
-        if (inputValue) {
-            buscarDadosAbastecimento();
-        }
-    }, [inputValue]);
-
-    // Função para lidar com a perda de foco no input
     const handleInputBlur = () => {
         // Verifica se o valor do input não está vazio antes de buscar os dados
         if (inputValue) {
@@ -152,12 +203,18 @@ export default function AutorizacaoPosto() {
         }
     };
 
+    useEffect(() => {
+        if (inputValue) {
+            buscarDadosAbastecimento();
+        }
+    }, [inputValue]);
+
     return (
         <React.Fragment>
             <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Typography sx={{ marginLeft: '-12px', marginBottom: '10px' }}>Solicite ao motorista o número do token que está aparecendo na tela do seu celular.</Typography>
-                    <BsInfoCircleFill color='#2d61dd' onClick={handleOpen} />
+                    <BsInfoCircleFill color='#2d61dd' onClick={handleModalInfoOpen} />
                 </div>
                 <InputMask
                     mask="9999999999"
@@ -178,6 +235,21 @@ export default function AutorizacaoPosto() {
                     )}
                 </InputMask>
             </div>
+
+            {isLoading ? (
+                <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 9999 }}>
+                    <CircularProgress />
+                </Box>
+            ) : (
+                alert.show && (
+                    <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
+                        <div>
+                            <Alert severity={alert.typeAlert}>{alert.messageAlert}</Alert>
+                            {!alert.messageAlert.startsWith('Erro')}
+                        </div>
+                    </div>
+                )
+            )}
 
             <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0' }}>
                 <Typography sx={{ marginLeft: '-12px', marginBottom: '10px' }}>Informações do abastecimento aparecerão abaixo. Depois de conferir os detalhes, clique em autorizar para gerar o abastecimento.</Typography>
@@ -235,23 +307,26 @@ export default function AutorizacaoPosto() {
                         inputProps={{ style: { paddingLeft: '10px' } }}
                         sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
                     />
+                    <div style={{ width: 'auto', marginTop: '10px', }} onClick={handleOpen}>
+                        <IconButton color="primary" aria-label="add an alarm">
+                            <CameraAltIcon /><p>Visualizar anexo</p>
+                        </IconButton>
+                    </div>
                 </RowForm>
             </div>
 
-            {isLoading ? (
-                <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 9999 }}>
-                    <CircularProgress />
-                </Box>
-            ) : (
-                alert.show && (
-                    <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
-                        <div>
-                            <Alert severity={alert.typeAlert}>{alert.messageAlert}</Alert>
-                            {!alert.messageAlert.startsWith('Erro')}
-                        </div>
-                    </div>
-                )
-            )}
+            <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0' }}>
+                <Typography sx={{ marginLeft: '-12px', marginBottom: '10px' }}>Informações da nota NFe</Typography>
+                <RowForm>
+                    <TextField
+                        label="Numero da nota fiscal"
+                        name="kmAnterios"
+                        value={''}
+                        inputProps={{ style: { paddingLeft: '10px' } }}
+                        sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
+                    />
+                </RowForm>
+            </div>
 
             <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
                 <InputPesquisa>
@@ -267,8 +342,30 @@ export default function AutorizacaoPosto() {
             </div>
 
             <Modal
-                open={open}
+                open={openModalPhoto}
                 onClose={handleClose}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+                sx={{ width: 'auto' }}
+            >
+                <Box sx={style}>
+                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                        Anexo
+                        <Typography>Foto do painel do caminhão</Typography>
+                    </Typography>
+                    <Typography id="modal-modal-description" sx={{ mt: 2, display: 'flex', flexDirection: 'column', }}>
+                        {imagemRedimensionada && (
+                            <div style={{ maxWidth: '100%', maxHeight: '100%', overflow: 'hidden' }}>
+                                <img src={imagemRedimensionada} alt="Imagem" style={{ maxWidth: '100%', height: 'auto' }} />
+                            </div>
+                        )}
+                    </Typography>
+                </Box>
+            </Modal>
+
+            <Modal
+                open={openModalInfo}
+                onClose={handleModalInfoCLose}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
             >

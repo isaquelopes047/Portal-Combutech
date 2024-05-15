@@ -55,7 +55,7 @@ function LoginForm({ onLogin, AlertError }) {
               id="password-field"
               type={showPassword ? 'text' : 'password'}
               name="password"
-              maxLength="8"
+              maxLength="30"
               onChange={handleSenhaChange}
               value={password}
               required="required"

@@ -53,6 +53,12 @@ function Login() {
           Cookies.set('transportadoraId', data.data.user.transportadora.transportadoraid, { secure: true, sameSite: 'strict' });
         }
 
+        if(data.data.user.posto != null) {
+          Cookies.set('__StrictModePosto', 1, { secure: true, sameSite: 'strict' });
+        } else {
+          Cookies.set('__StrictModePosto', 0, { secure: true, sameSite: 'strict' });
+        }
+
         navigate('/auth');
         return true;
       }
