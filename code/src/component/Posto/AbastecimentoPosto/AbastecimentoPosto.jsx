@@ -81,6 +81,7 @@ export default function AutorizacaoPosto() {
     const [inputValue, setInputValue] = useState('');
     const [dadosAbastecimento, setDadosAbastecimento] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+    const [nomeMotorista, setNomeMotorista] = useState('');
     const [openModalInfo, setOpenModalInfo] = React.useState(false);
     const [openModalPhoto, setOpenModalPhoto] = React.useState(false);
     const [imagemRedimensionada, setImagemRedimensionada] = useState(null);
@@ -151,6 +152,10 @@ export default function AutorizacaoPosto() {
             const response = await fetch(`https://api.combutech.com.br/api/Motorista/BuscaAbastecimentoMotoristaPorToken/${inputValue}`, requestOptions);
             const data = await response.json();
             setDadosAbastecimento(data.data);
+
+            const responseMotorista = await fetch(`https://api.combutech.com.br/api/Motorista/BuscaMotorista/${dadosAbastecimento.motoristaid}`, requestOptions);
+            const dataMotorista = await responseMotorista.json();
+            setNomeMotorista(dataMotorista.data.motoristanome)
 
         } catch (error) { console.error('Erro ao buscar dados de abastecimento:', error) }
     };
@@ -253,6 +258,18 @@ export default function AutorizacaoPosto() {
 
             <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0' }}>
                 <Typography sx={{ marginLeft: '-12px', marginBottom: '10px' }}>Informações do abastecimento aparecerão abaixo. Depois de conferir os detalhes, clique em autorizar para gerar o abastecimento.</Typography>
+
+                <RowForm>
+                    <TextField
+                        disabled
+                        label="Nome do motorista"
+                        name="kmAnterios"
+                        value={nomeMotorista}
+                        inputProps={{ style: { paddingLeft: '10px' } }}
+                        sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
+                    />
+                </RowForm>
+
                 <RowForm>
                     <TextField
                         disabled
