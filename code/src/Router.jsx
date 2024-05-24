@@ -25,6 +25,7 @@ import Usuario from "./pages/usuario/usuario";
 import ValorNegociado from "./pages/Posto/ValorNegociado/ValorNegociado";
 import MainUsuarios from "./pages/Usuarios/usuarios";
 import MainDetalheUsuario from "./pages/Usuarios/detalhesUsuario";
+import ValoresAprovarMain from "./pages/Posto/ValoresAprovar/ValoresAprovar";
 
 const router = createBrowserRouter([
   {
@@ -174,6 +175,12 @@ const router = createBrowserRouter([
       {
         path: "usuarios/usuarios/edit/:id",
         element: <MainDetalheUsuario />,
+      },
+
+      /* Posto */
+      {
+        path: "negociacao/negociacaovalores",
+        element: <ValoresAprovarMain />,
       },
 
     ],

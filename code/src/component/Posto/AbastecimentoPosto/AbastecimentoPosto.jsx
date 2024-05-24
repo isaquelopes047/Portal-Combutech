@@ -8,8 +8,6 @@ import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
-import IconButton from '@mui/material/IconButton';
-import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import { BsInfoCircleFill } from "react-icons/bs";
 import Resizer from 'react-image-file-resizer';
 
@@ -48,7 +46,8 @@ const defaultInputStyle = {
     '& input:focus': {
         backgroundColor: '#fff',
         border: 0,
-    }
+    },
+    '& .css-1jy569b-MuiFormLabel-root-MuiInputLabel-root.Mui-disabled': { marginLeft: '7px' },
 };
 
 const InputPesquisa = styled.div`
@@ -78,14 +77,17 @@ const style = {
 };
 
 export default function AutorizacaoPosto() {
+    const [valorNegociado, setValorNegociado] = useState('');
     const [inputValue, setInputValue] = useState('');
     const [dadosAbastecimento, setDadosAbastecimento] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [nomeMotorista, setNomeMotorista] = useState('');
     const [openModalInfo, setOpenModalInfo] = React.useState(false);
-    const [openModalPhoto, setOpenModalPhoto] = React.useState(false);
-    const [imagemRedimensionada, setImagemRedimensionada] = useState(null);
-    const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
+    const [__openModalPhoto, setOpenModalPhoto] = React.useState(false);
+    const [errorInput, setErrorInput] = React.useState(false);
+    const [authToken, __setAuthToken] = useState(localStorage.getItem('authToken'));
+    /*  const [imagemRedimensionada, setImagemRedimensionada] = useState(null); */
+
     const [alert, setAlert] = useState({
         messageAlert: '',
         typeAlert: '',
@@ -118,7 +120,7 @@ export default function AutorizacaoPosto() {
         });
     };
 
-    // Função para carregar e redimensionar a imagem
+/*     // Função para carregar e redimensionar a imagem
     const loadAndResizeImage = async () => {
         if (dadosAbastecimento?.imagens.length > 0) {
             try {
@@ -130,11 +132,11 @@ export default function AutorizacaoPosto() {
                 console.log(dadosAbastecimento.imagens[0])
             }
         }
-    };
+    }; */
 
-    useEffect(() => {
-        loadAndResizeImage();
-    }, [dadosAbastecimento]);
+    const handleValorNegociadoChange = (event) => {
+        setValorNegociado(event.target.value);
+    };
 
     const handleModalInfoOpen = () => setOpenModalInfo(true);
     const handleModalInfoCLose = () => setOpenModalInfo(false);
@@ -151,7 +153,8 @@ export default function AutorizacaoPosto() {
             const requestOptions = { method: 'GET', headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' } };
             const response = await fetch(`https://api.combutech.com.br/api/Motorista/BuscaAbastecimentoMotoristaPorToken/${inputValue}`, requestOptions);
             const data = await response.json();
-            setDadosAbastecimento(data.data);
+            setDadosAbastecimento(data.data)
+
 
             const responseMotorista = await fetch(`https://api.combutech.com.br/api/Motorista/BuscaMotorista/${dadosAbastecimento.motoristaid}`, requestOptions);
             const dataMotorista = await responseMotorista.json();
@@ -198,7 +201,17 @@ export default function AutorizacaoPosto() {
     };
 
     const handleAutorizarClick = () => {
-        autorizarAbastecimento();
+        if (parseFloat(valorNegociado) === dadosAbastecimento.valorunitario) {
+            autorizarAbastecimento();
+            setErrorInput(false)
+        } else {
+            setAlert({
+                messageAlert: "Erro ao autorizar abastecimento, valor unitario não condiz com o negociado.",
+                typeAlert: 'error',
+                show: true,
+            });
+            setErrorInput(true)
+        }
     };
 
     const handleInputBlur = () => {
@@ -213,6 +226,10 @@ export default function AutorizacaoPosto() {
             buscarDadosAbastecimento();
         }
     }, [inputValue]);
+
+/*     useEffect(() => {
+        loadAndResizeImage();
+    }, [dadosAbastecimento]); */
 
     return (
         <React.Fragment>
@@ -298,6 +315,14 @@ export default function AutorizacaoPosto() {
                         inputProps={{ style: { paddingLeft: '10px' } }}
                         sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
                     />
+                    <TextField
+                        disabled
+                        label="Total calculado"
+                        name="Total calculado"
+                        value={dadosAbastecimento?.valortotal ?? 'R$' ?? 'Total calculado'}
+                        inputProps={{ style: { paddingLeft: '10px' } }}
+                        sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
+                    />
                 </RowForm>
 
                 <RowForm>
@@ -324,24 +349,36 @@ export default function AutorizacaoPosto() {
                         inputProps={{ style: { paddingLeft: '10px' } }}
                         sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
                     />
-                    <div style={{ width: 'auto', marginTop: '10px', }} onClick={handleOpen}>
+{/*                     <div style={{ width: 'auto', marginTop: '10px', }} onClick={handleOpen}>
                         <IconButton color="primary" aria-label="add an alarm">
                             <CameraAltIcon /><p>Visualizar anexo</p>
                         </IconButton>
-                    </div>
+                    </div> */}
                 </RowForm>
             </div>
 
             <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0' }}>
-                <Typography sx={{ marginLeft: '-12px', marginBottom: '10px' }}>Informações da nota NFe</Typography>
+                <Typography sx={{ marginLeft: '-12px', marginBottom: '10px' }}>Informe o valor unitario negociado</Typography>
                 <RowForm>
-                    <TextField
-                        label="Numero da nota fiscal"
-                        name="kmAnterios"
-                        value={''}
-                        inputProps={{ style: { paddingLeft: '10px' } }}
-                        sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
-                    />
+                    <InputMask
+                        mask="9.99"
+                        value={valorNegociado}
+                        onChange={handleValorNegociadoChange}
+                        onBlur={handleInputBlur}
+                        style={{ border: 'none', outline: 'none' }}
+                    >
+                        {() => (
+                            <TextField
+                                error={errorInput}
+                                sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
+                                label="Valor negociado"
+                                name="Digite o valor negociado"
+                                inputProps={{
+                                    style: { paddingLeft: '10px' }
+                                }}
+                            />
+                        )}
+                    </InputMask>
                 </RowForm>
             </div>
 
@@ -358,7 +395,7 @@ export default function AutorizacaoPosto() {
                 </InputPesquisa>
             </div>
 
-            <Modal
+{/*             <Modal
                 open={openModalPhoto}
                 onClose={handleClose}
                 aria-labelledby="modal-modal-title"
@@ -378,7 +415,7 @@ export default function AutorizacaoPosto() {
                         )}
                     </Typography>
                 </Box>
-            </Modal>
+            </Modal> */}
 
             <Modal
                 open={openModalInfo}
@@ -407,7 +444,6 @@ export default function AutorizacaoPosto() {
                         </Box>
 
                         <Box sx={{ marginTop: '15px' }}>
-                            <p>+55 47 999078865</p>
                             <p>combutech@combutech.com.br</p>
                         </Box>
                     </Typography>

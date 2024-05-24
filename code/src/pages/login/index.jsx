@@ -41,9 +41,17 @@ function Login() {
 
       if (response.status === 200) {
         const modulosString = JSON.stringify(data.data.user.perfil.modulos);
+
         localStorage.setItem('authToken', data.data.token);
         localStorage.setItem('emailUsuario', data.data.user.nome);
         localStorage.setItem('optionsMenu', modulosString);
+        
+        const postoid = data?.data?.user?.posto?.postoid ?? null;
+        if (postoid) {
+          localStorage.setItem('postoid', postoid);
+        } else {
+          console.warn('Postoid não encontrado para o usuário');
+        }
 
         /* Verificação de transportadora */
         if (data.data.user.transportadora === null) {

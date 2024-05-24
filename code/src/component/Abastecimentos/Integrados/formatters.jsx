@@ -11,7 +11,7 @@ export const formatNumberForKm = (value) => {
 };
 
 /* 009.999.999,999 */
-export const formatNumberForLitros= (value) => {
+export const formatNumberForLitros = (value) => {
     // Remove todos os caracteres que não são dígitos
     const cleanedValue = value.replace(/\D/g, '');
 
@@ -62,6 +62,23 @@ export const formatNumberForValorUnitario = (value) => {
         // Se exceder, limita a formatação ao máximo de 8 caracteres
         formattedValue = formattedValue.substring(0, 5);
     }
+
+    return formattedValue;
+};
+
+export const formatReal = (value) => {
+    // Remove todos os caracteres que não são dígitos
+    const cleanedValue = value.replace(/\D/g, '');
+
+    // Limita o número de dígitos a 4
+    const trimmedValue = cleanedValue.slice(0, 4);
+
+    // Extrai a parte inteira e a parte decimal
+    let integerPart = trimmedValue.slice(0, 1) || '0';
+    const decimalPart = trimmedValue.slice(1).padEnd(3, '0'); // Garante que há até três casas decimais
+
+    // Junta a parte inteira e a parte decimal com o ponto
+    let formattedValue = integerPart + '.' + decimalPart;
 
     return formattedValue;
 };
