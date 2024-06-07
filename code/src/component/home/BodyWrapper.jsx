@@ -4,7 +4,7 @@ function BodyWrapper({ children }) {
   return (
     <div className="col-xxl-9 col-12 crancy-main__column container-fluid">
       <div className="crancy-body">
-        <div className="crancy-dsinner">{children} </div>
+        <div className="crancy-dsinner">{children}</div>
       </div>
     </div>
   );

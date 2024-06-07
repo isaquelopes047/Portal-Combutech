@@ -242,7 +242,7 @@ export default function ValoresNegociados() {
                         Digite abaixo os valores desejado a ser renegociado
                     </Typography>
 
-                    {/* INPUT DE ENVIO DE VALOR MEDIADO ENTRE POSTO E COMBUTECH */}
+                    {/* INPUT DE ENVIO DE LITRAGEM MAXIMA */}
                     <Box sx={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
                         <InputMask
                             mask="9.999"
@@ -254,30 +254,11 @@ export default function ValoresNegociados() {
                                     id="outlined-basic"
                                     label="Digite o novo valor"
                                     variant="outlined"
-                                    sx={{ width: '100%' }}
+                                    sx={{ width: '100%', marginRight: 2, }}
                                     {...inputProps}
                                 />
                             )}
                         </InputMask>
-                    </Box>
-
-                    {/* INPUT DE ENVIO DE LITRAGEM MAXIMA */}
-                    <Box sx={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
-                        <TextField
-                            id="outlined-basic"
-                            value={currentLitragemMaxima}
-                            label="Litragem máxima"
-                            variant="outlined"
-                            sx={{ width: '90%' }}
-                            onChange={(event) => {
-                                const value = parseFloat(event.target.value);
-                                setCurrentLitragemMaxima(isNaN(value) ? '' : value);
-                                setFormularioEnvio(prevState => ({
-                                    ...prevState,
-                                    maximaLitragem: isNaN(value) ? null : value
-                                }));
-                            }}
-                        />
                         <ButtonAccept onClick={handleSubmit}>
                             <IoCheckmarkCircleSharp size={25} color='#fff' />
                         </ButtonAccept>

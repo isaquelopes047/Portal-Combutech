@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
 import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
 import { styled } from '@mui/system';
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { TbEyeSearch } from "react-icons/tb";
 import { FaFilter } from "react-icons/fa";
@@ -9,43 +8,34 @@ import { BiSolidArrowToTop } from "react-icons/bi";
 import { BiSolidArrowFromTop } from "react-icons/bi";
 import { MdOutlineAttachMoney } from "react-icons/md";
 import { BsFillFuelPumpFill } from "react-icons/bs";
+import { FaHouseChimney } from "react-icons/fa6";
 import PrimatyTable from "../../Tables/PrimatyTable";
+import base from '../../../hooks/BaseUrlApi';
 import OptionsButton from "../../OptionButton";
 import DefautlLoadingTable from '../../loadings/loadingsTables/defaultLoadingTables';
 import Checkbox from '@mui/material/Checkbox';
-import base from '../../../hooks/BaseUrlApi';
 import Cookies from 'js-cookie';
+import Typography from '@mui/material/Typography';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import Alert from '@mui/material/Alert';
 
-const defaultInputStyle = {
-    flex: 1,
-    marginTop: 1.5,
-    height: '65px',
-    '& input': {
-        marginLeft: 0,
-        backgroundColor: '#fff',
-        border: 0,
-        paddingLeft: 1,
-    },
-    '& input:focus': {
-        backgroundColor: '#fff',
-        border: 0,
-    }
-};
-
-const defaultInputsAutoComplete = {
-    '& label.Mui-focused': { paddingLeft: 0 },
-    '& .css-16e8wmc-MuiAutocomplete-root, & .MuiOutlinedInput-root, & .MuiAutocomplete-input': { paddingLeft: 1, paddingTop: 0, height: '40px' },
-    '& .css-1q60rmi-MuiAutocomplete-endAdornment': { top: 0 },
-    '& .MuiAutocomplete-hasPopupIcon.css-6c6kjn-MuiAutocomplete-root, & .MuiOutlinedInput-root, & .MuiAutocomplete-hasClearIcon.css-6c6kjn-MuiAutocomplete-root, & .MuiOutlinedInput-root': { height: '50px' },
-    '& .MuiButtonBase-root, & .MuiIconButton-root & .MuiIconButton-sizeMedium & .MuiAutocomplete-popupIndicator & .css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator': { display: 'none' },
-    '& .label.Mui-focused': { marginTop: 50 }
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '40%',
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
 };
 
 const columns = [
     { id: 'Options', label: `Opções`, minWidth: 100 },
+    { id: 'postorazaosocial', label: `Posto`, minWidth: 100 },
     { id: 'produtoid', label: 'Produto solicitado', minWidth: 170 },
     { id: 'produtopostopreconegociado', label: 'Preço solicitado', minWidth: 170 },
-    { id: 'maximalitragem', label: 'Litragem solicitada', minWidth: 170 },
     { id: 'situacao', label: 'Situação', minWidth: 170 },
 ];
 
@@ -64,19 +54,31 @@ const productMapping = {
     12: "ARLA BALDE 20LTS"
 };
 
+const defaultInputStyle = {
+    border: 'none',
+    '& input': {
+        backgroundColor: '#fff',
+        border: 'none',
+    },
+    '& input:focus': {
+        backgroundColor: '#fff',
+        border: 'none',
+    }
+};
+
 export default function ValoresAprovar() {
     const [transportadoraId, setTransportadoraId] = useState(Cookies.get('transportadoraId'));
-    const [pagina, setPagina] = useState(1);
-    const [countPages, setCountPages] = React.useState(10);
+    const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
     const [sortedRows, setSortedRows] = useState([]);
     const [dadosOriginais, setDadosOriginais] = useState([]);
+    const [selectedRow, setSelectedRow] = useState([]);
+    const [countPages, setCountPages] = React.useState(10);
+    const [pagina, setPagina] = useState(1);
     const [filtro, setFiltro] = useState('');
     const [sortOrder, setSortOrder] = useState('asc');
-    const [selectedRow, setSelectedRow] = useState(null);
     const [dadosLoading, setDadosLoading] = useState(true);
     const [isChecked, setIsChecked] = useState(true);
-    const [open, setOpen] = useState(false);
-    const navigate = useNavigate();
+    const [openModalInfo, setOpenModalInfo] = React.useState(false);
     const label = {
         inputProps: {
             'aria-label': 'Checkbox demo',
@@ -85,17 +87,102 @@ export default function ValoresAprovar() {
             }
         }
     };
+    const [alert, setAlert] = useState({
+        messageAlert: '',
+        typeAlert: '',
+        show: false
+    });
 
-    const handleChange = (event) => {
-        setCountPages(event.target.value);
+    const handleChange = (event) => { setCountPages(event.target.value) };
+
+    const handleAdd = () => { setPagina(prevPagina => Math.max(prevPagina + 1, 1)) };
+
+    const handleReduce = () => { setPagina(prevPagina => Math.max(prevPagina - 1, 1)) };
+
+    const handleClose = () => { setOpenModalInfo(false) };
+
+    const sortRows = (property) => {
+        const sorted = [...sortedRows].sort((a, b) => {
+            const comparison = a[property] - b[property];
+            return sortOrder === 'asc' ? comparison : -comparison;
+        });
+        setSortedRows(sorted);
+        setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
     };
 
-    const handleAdd = () => {
-        setPagina(prevPagina => Math.max(prevPagina + 1, 1));
+    const handleOpen = (rowData) => {
+        setOpenModalInfo(true);
+        setSelectedRow(rowData);
+        console.log(rowData);
     };
 
-    const handleReduce = () => {
-        setPagina(prevPagina => Math.max(prevPagina - 1, 1));
+    const updatedRows = sortedRows.map((row) => ({
+        ...row,
+        produtoid: (
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <BsFillFuelPumpFill color="grey" style={{ marginRight: 4 }} />
+                {productMapping[row.produtoid] || row.produtoid}
+            </div>
+        ),
+        postorazaosocial: (
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <FaHouseChimney color="grey" style={{ marginRight: 4 }} />
+                {row.posto.postorazaosocial}
+            </div>
+        ),
+        produtopostopreconegociado: (
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <MdOutlineAttachMoney color="green" style={{ marginRight: 4 }} />
+                {productMapping[row.produtopostopreconegociado] || row.produtopostopreconegociado}
+            </div>
+        ),
+        situacao: (
+            <div style={{ pointer: 'not-allowed' }}>
+                {row.situacao === true ?
+                    <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
+                        <Checkbox {...label} checked={isChecked} sx={{ '& .MuiSvgIcon-root': { marginLeft: '-20px' } }} />
+                        <p>Aprovado</p>
+                    </div>
+                    :
+                    <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
+                        <Checkbox {...label} checked={!isChecked} sx={{ '& .MuiSvgIcon-root': { marginLeft: '-20px' } }} />
+                        <p>Aguardando</p>
+                    </div>
+                }
+            </div>
+        )
+    }));
+
+    const fetchProdutosPosto = () => {
+        const requestOptions = {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            }
+        };
+
+        fetch(`${base.URL_BASE_API}/Posto/AprovarSolicitacao/${selectedRow}`, requestOptions)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                setAlert({
+                    messageAlert: "Valor alterado com sucesso!",
+                    typeAlert: 'success',
+                    show: true
+                });
+            })
+            .catch(error => {
+                setAlert({
+                    messageAlert: "Erro ao autorizado o valor!",
+                    typeAlert: 'error',
+                    show: true
+                });
+            });
     };
 
     /* GET dos dados */
@@ -121,6 +208,7 @@ export default function ValoresAprovar() {
                 }
                 const data = await response.json();
                 setSortedRows(data.data.reverse());
+                console.log(data.data)
                 setDadosOriginais(data.data);
             } catch (error) {
                 console.error(error);
@@ -130,56 +218,6 @@ export default function ValoresAprovar() {
         };
         buscarDados();
     }, [pagina, countPages, transportadoraId]);
-
-    const handleOpen = (row) => {
-        setOpen(true);
-        setSelectedRow(row);
-    };
-
-    const sortRows = (property) => {
-        const sorted = [...sortedRows].sort((a, b) => {
-            const comparison = a[property] - b[property];
-            return sortOrder === 'asc' ? comparison : -comparison;
-        });
-        setSortedRows(sorted);
-        setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
-    };
-
-    const updatedRows = sortedRows.map((row) => ({
-        ...row,
-        produtoid: (
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-                <BsFillFuelPumpFill color="grey" style={{ marginRight: 4 }} />
-                {productMapping[row.produtoid] || row.produtoid}
-            </div>
-        ),
-        maximalitragem: (
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-                <p>{productMapping[row.maximalitragem] || row.maximalitragem} Litros</p>
-            </div>
-        ),
-        produtopostopreconegociado: (
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-                <MdOutlineAttachMoney color="green" style={{ marginRight: 4 }} />
-                {productMapping[row.produtopostopreconegociado] || row.produtopostopreconegociado}
-            </div>
-        ),
-        situacao: (
-            <div style={{ pointer: 'not-allowed' }}>
-                {row.situacao === true ?
-                    <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
-                        <Checkbox {...label} checked={isChecked} sx={{ '& .MuiSvgIcon-root': { marginLeft: '-20px' } }} />
-                        <p>Aprovado</p>
-                    </div>
-                    :
-                    <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
-                        <Checkbox {...label} checked={!isChecked} sx={{ '& .MuiSvgIcon-root': { marginLeft: '-20px' } }} />
-                        <p>Aguardando</p>
-                    </div>
-                }
-            </div>
-        )
-    }));
 
     useEffect(() => {
         // Filtrar os dados com base no filtro
@@ -216,27 +254,71 @@ export default function ValoresAprovar() {
             {dadosLoading ? (
                 <DefautlLoadingTable />
             ) : (
-                <PrimatyTable
-                    dadosCollunas={columns}
-                    dadosRows={updatedRows}
-                    rowsLength={sortedRows.length}
-                    idChavePrincipal='laiCodigo'
-                    idKey="laiCodigo"
-                    more={handleAdd}
-                    less={handleReduce}
-                    numberPage={pagina}
-                    quantidadeRegistro={countPages}
-                    handleChange={handleChange}
-                    opcoesSubMenu={(rowId) => (
-                        <>
-                            <MenuItem onClick={() => handleOpen(sortedRows[rowId])} style={{ display: 'flex', alignItems: 'center', }}>
-                                <TbEyeSearch size={20} />
-                                Visualizar
-                            </MenuItem>
-                        </>
-                    )}
-                />
+                <React.Fragment>
+                    <PrimatyTable
+                        dadosCollunas={columns}
+                        dadosRows={updatedRows}
+                        rowsLength={sortedRows.length}
+                        idChavePrincipal='id'
+                        idKey="produtoid"
+                        more={handleAdd}
+                        less={handleReduce}
+                        numberPage={pagina}
+                        quantidadeRegistro={countPages}
+                        handleChange={handleChange}
+                        opcoesSubMenu={(row) => {
+                            return (
+                                <>
+                                    <MenuItem onClick={() => handleOpen(row)} style={{ display: 'flex', alignItems: 'center' }}>
+                                        <TbEyeSearch size={20} />
+                                        Aprovar
+                                    </MenuItem>
+                                </>
+                            );
+                        }}
+                    />
+                </React.Fragment>
             )}
+
+            {/* Modal de aprovação de alteração de valor */}
+            <Modal
+                open={openModalInfo}
+                onClose={handleClose}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+                sx={{ ...defaultInputStyle }}
+            >
+                <Box sx={style}>
+                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                        Aprovar alteração
+                    </Typography>
+                    <Typography id="modal-modal-description" sx={{ mt: 2, fontSize: '12px', padding: '20px 0px', }}>
+                        Ao aprovar a alteração do valor unitário, você estará modificando diretamente o valor negociado com a Combutech. Esta ação é significativa, pois afetará os termos financeiros previamente estabelecidos. Certifique-se de revisar cuidadosamente os novos valores antes de confirmar a alteração para garantir que estejam de acordo com as expectativas e requisitos do contrato. A aprovação desta mudança implicará em um ajuste automático nos registros de negociação, refletindo o novo valor unitário acordado.
+                    </Typography>
+
+                    <Box sx={{
+                        width: '100%',
+                        height: 'auto',
+                        display: 'flex',
+                        gap: '30px',
+                    }}>
+                        <button style={{ backgroundColor: '#2169b2', color: '#fff' }} onClick={fetchProdutosPosto}>
+                            Aprovar
+                        </button>
+                        <button onClick={handleClose}> Voltar </button>
+                    </Box>
+
+                    {alert.show ? (
+                        <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
+                            <div>
+                                <Alert severity={alert.typeAlert}>{alert.messageAlert}</Alert>
+                                {!alert.messageAlert.startsWith('Erro')}
+                            </div>
+                        </div>
+                    ) : (null)}
+
+                </Box>
+            </Modal>
         </div>
     );
 }

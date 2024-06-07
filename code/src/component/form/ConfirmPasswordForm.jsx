@@ -41,12 +41,12 @@ function ConfirmPasswordForm() {
         <div className="form-group">
           <div className="crancy-wc__button crancy-wc__button--initial">
             <a
-              href="/login"
+              href="/"
               className="ntfmax-wc__btn ntfmax-wc__btn--login"
             >
               Voltar
               <span>
-                <i className="fa-solid fa-arrow-right"></i>
+                <i className="fa-solid fa-arrow-left"></i>
               </span>
             </a>
           </div>

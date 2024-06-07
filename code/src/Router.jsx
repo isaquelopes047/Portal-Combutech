@@ -26,6 +26,7 @@ import ValorNegociado from "./pages/Posto/ValorNegociado/ValorNegociado";
 import MainUsuarios from "./pages/Usuarios/usuarios";
 import MainDetalheUsuario from "./pages/Usuarios/detalhesUsuario";
 import ValoresAprovarMain from "./pages/Posto/ValoresAprovar/ValoresAprovar";
+import ControleFrotas from "./pages/Controle/ControleFrotas/ControleFrotas";
 
 const router = createBrowserRouter([
   {
@@ -181,6 +182,12 @@ const router = createBrowserRouter([
       {
         path: "negociacao/negociacaovalores",
         element: <ValoresAprovarMain />,
+      },
+
+      /* Controle */
+      {
+        path: "controle/controlefrotas",
+        element: <ControleFrotas />,
       },
 
     ],

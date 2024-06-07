@@ -120,7 +120,7 @@ export default function AutorizacaoPosto() {
         });
     };
 
-/*     // Função para carregar e redimensionar a imagem
+/*  // Função para carregar e redimensionar a imagem
     const loadAndResizeImage = async () => {
         if (dadosAbastecimento?.imagens.length > 0) {
             try {
@@ -149,18 +149,39 @@ export default function AutorizacaoPosto() {
     };
 
     const buscarDadosAbastecimento = async () => {
+        setIsLoading(true);
+
         try {
-            const requestOptions = { method: 'GET', headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' } };
+            const requestOptions = {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+
             const response = await fetch(`https://api.combutech.com.br/api/Motorista/BuscaAbastecimentoMotoristaPorToken/${inputValue}`, requestOptions);
             const data = await response.json();
-            setDadosAbastecimento(data.data)
 
-
-            const responseMotorista = await fetch(`https://api.combutech.com.br/api/Motorista/BuscaMotorista/${dadosAbastecimento.motoristaid}`, requestOptions);
-            const dataMotorista = await responseMotorista.json();
-            setNomeMotorista(dataMotorista.data.motoristanome)
-
-        } catch (error) { console.error('Erro ao buscar dados de abastecimento:', error) }
+            // Verificar se statusCode é 200 e data é null
+            if (response.status === 200 && data.data === null) {
+                setAlert({
+                    messageAlert: "Token já atualizado ou não criado.",
+                    typeAlert: 'error',
+                    show: true
+                });
+            } else {
+                setDadosAbastecimento(data.data);
+                const responseMotorista = await fetch(`https://api.combutech.com.br/api/Motorista/BuscaMotorista/${data.data.motoristaid}`, requestOptions);
+                const dataMotorista = await responseMotorista.json();
+                setNomeMotorista(dataMotorista.data.motoristanome);
+                setAlert({show: false});
+            }
+        } catch (error) {
+            console.error('Erro ao buscar dados de abastecimento:', error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const autorizarAbastecimento = () => {
@@ -220,12 +241,6 @@ export default function AutorizacaoPosto() {
             buscarDadosAbastecimento();
         }
     };
-
-    useEffect(() => {
-        if (inputValue) {
-            buscarDadosAbastecimento();
-        }
-    }, [inputValue]);
 
 /*     useEffect(() => {
         loadAndResizeImage();
@@ -394,28 +409,6 @@ export default function AutorizacaoPosto() {
                     </Button>
                 </InputPesquisa>
             </div>
-
-{/*             <Modal
-                open={openModalPhoto}
-                onClose={handleClose}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-                sx={{ width: 'auto' }}
-            >
-                <Box sx={style}>
-                    <Typography id="modal-modal-title" variant="h6" component="h2">
-                        Anexo
-                        <Typography>Foto do painel do caminhão</Typography>
-                    </Typography>
-                    <Typography id="modal-modal-description" sx={{ mt: 2, display: 'flex', flexDirection: 'column', }}>
-                        {imagemRedimensionada && (
-                            <div style={{ maxWidth: '100%', maxHeight: '100%', overflow: 'hidden' }}>
-                                <img src={imagemRedimensionada} alt="Imagem" style={{ maxWidth: '100%', height: 'auto' }} />
-                            </div>
-                        )}
-                    </Typography>
-                </Box>
-            </Modal> */}
 
             <Modal
                 open={openModalInfo}

@@ -23,9 +23,13 @@ function Home() {
         }  */}
 
         { StrickPosto == 1 ? (
-          <div style={{marginTop: '90px',}}>
+          <div style={{marginTop: '70px', padding: '30px',}}>
             <h1 className="welcome-title">Bem-vindo, Posto!</h1>
-            <p className="welcome-message">Estamos felizes em tê-lo aqui.</p>
+
+            <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
+              <p className="welcome-message">Estamos felizes em tê-lo aqui.</p>
+              <p className="welcome-message">Duvidas sobre algum procedimento? entre em contato com a Combutech em nosso canais de atendimento</p>
+            </div>
           </div>
         ) : (
           <div>

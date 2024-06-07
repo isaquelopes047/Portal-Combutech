@@ -52,7 +52,7 @@ export default function MainCadastroVeiculo() {
 
     /* GET dos dados */
     useEffect(() => {
-        const url = 'http://localhost:86/api/Veiculo/BuscaVeiculos';
+        const url = 'https://api.combutech.com.br/api/api/Veiculo/BuscaVeiculosPorTransportadora/';
         const authToken = localStorage.getItem('authToken');
 
         const headers = {
