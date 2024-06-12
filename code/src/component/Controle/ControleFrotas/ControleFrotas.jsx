@@ -15,7 +15,6 @@ export default function MainControleFrotas() {
     const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
     const [travas, setTravas] = useState([])
     const [selectedValidacoes, setSelectedValidacoes] = useState([]);
-    console.log(selectedValidacoes)
 
     /* Get produtos travas */
     useEffect(() => {
@@ -63,8 +62,9 @@ export default function MainControleFrotas() {
         const url = `${base.URL_BASE_API}/api/Transportadora/RegistraValidacaoTransportadora`;
 
         fetch(url, {
-            method: 'GET',
-            headers: headers
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(dadosParaEnvio)
         })
             .then(response => {
                 if (!response.ok) {
