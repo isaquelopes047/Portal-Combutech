@@ -1,14 +1,4 @@
 import * as React from 'react';
-import { useEffect } from 'react'
-import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
-import { styled } from '@mui/system';
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import { FaPencil } from "react-icons/fa6";
-import { TbEyeSearch } from "react-icons/tb";
-import { FaFilter } from "react-icons/fa";
-import { BiSolidArrowToTop } from "react-icons/bi";
-import { BiSolidArrowFromTop } from "react-icons/bi";
 import PrimatyTable from "../../Tables/PrimatyTable";
 import OptionsButton from "../../OptionButton";
 import DefautlLoadingTable from '../../loadings/loadingsTables/defaultLoadingTables';
@@ -18,6 +8,18 @@ import Stack from '@mui/material/Stack';
 import Autocomplete from '@mui/material/Autocomplete';
 import base from '../../../hooks/BaseUrlApi';
 import Cookies from 'js-cookie';
+
+import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
+import { handleUnauthorized } from '../../../hooks/LogOut';
+import { useEffect } from 'react'
+import { styled } from '@mui/system';
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { FaPencil } from "react-icons/fa6";
+import { TbEyeSearch } from "react-icons/tb";
+import { FaFilter } from "react-icons/fa";
+import { BiSolidArrowToTop } from "react-icons/bi";
+import { BiSolidArrowFromTop } from "react-icons/bi";
 
 const defaultInputStyle = {
     flex: 1,
@@ -137,26 +139,33 @@ export default function MainAbastecimentoNaoIntegrado() {
                 const authToken = localStorage.getItem('authToken');
                 const transportadoraValue = Cookies.get('transportadoraId');
 
-                const headers = {
-                    'Authorization': `Bearer ${authToken}`,
-                    'Content-Type': 'application/json'
-                };
+                const headers = { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' };
+
                 const transportadoraId = {
                     transportadoraId: [transportadoraValue],
                     quantidadePorPagina: countPages,
                     pagina: pagina,
                 };
+
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: headers,
                     body: JSON.stringify(transportadoraId)
                 });
+
+                if (response.status === 401) {
+                    handleUnauthorized();
+                    return;
+                }
+
                 if (!response.ok) {
                     throw new Error(`Erro na requisição. Código de status: ${response.status}`);
                 }
+
                 const data = await response.json();
                 setSortedRows(data.data);
                 setDadosOriginais(data.data);
+
             } catch (error) {
                 console.error(error);
             } finally {

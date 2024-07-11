@@ -7,6 +7,7 @@ import useMenu from "../../hooks/useMenu";
 import RankingProdutos from "../../component/home/DolarChart";
 import RankingMotoristas from "../../component/home/RankingMotorista";
 import Cookies from 'js-cookie';
+import MapCombutech from "../../component/home/MapCombutech";
 
 function Home() {
   useMenu();
@@ -36,6 +37,7 @@ function Home() {
             <SalesCharts />
             <RankingProdutos />
             <RankingMotoristas />
+            <MapCombutech />
           </div>
         )}
 

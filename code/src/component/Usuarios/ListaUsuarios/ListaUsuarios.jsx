@@ -13,6 +13,7 @@ import { styled } from '@mui/system';
 import { FaPlusCircle } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 import { FaPencil } from "react-icons/fa6";
+import { handleUnauthorized } from '../../../hooks/LogOut';
 
 const columns = [
     { id: 'Options', label: `Opções`, minWidth: 100 },
@@ -78,16 +79,23 @@ export default function ListaUsuarios() {
                     quantidadePorPagina: countPages,
                     pagina: pagina,
                 };
+
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: headers,
                     body: JSON.stringify(transportadoraId)
                 });
+
+                if (response.status == 401) {
+                    handleUnauthorized();
+                    return;
+                };
+
                 if (!response.ok) {
                     throw new Error(`Erro na requisição. Código de status: ${response.status}`);
                 };
-                const data = await response.json();
 
+                const data = await response.json();
                 const dadosFormatados = data.data.map(item => {
                     return {
                         ...item,
@@ -129,7 +137,7 @@ export default function ListaUsuarios() {
     return <>
         <UtilBar titleButton={<GiHamburgerMenu />}>
             <MenuItem>
-                <a href="/auth/abastecimentos/integrados/cad">
+                <a href="/auth/usuarios/usuarios/criarusuario">
                     <FaPlusCircle size={iconsSize} />
                     Criar Usuario
                 </a>

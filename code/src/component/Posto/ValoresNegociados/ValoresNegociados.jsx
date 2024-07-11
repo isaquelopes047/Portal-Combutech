@@ -12,9 +12,11 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Alert from '@mui/material/Alert';
 import InputMask from "react-input-mask";
+import base from '../../../hooks/BaseUrlApi';
 import { BsPencil } from "react-icons/bs";
 import { ButtonAccept } from './ValoresNegociados-style';
 import { IoCheckmarkCircleSharp } from "react-icons/io5";
+import { handleUnauthorized } from '../../../hooks/LogOut';
 
 const style = {
     position: 'absolute',
@@ -111,11 +113,16 @@ export default function ValoresNegociados() {
             if (postoid) {
                 try {
                     const requestOptions = { method: 'GET', headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' } };
-                    const response = await fetch(`https://api.combutech.com.br/api/Posto/BuscaProdutosPosto/${postoid}`, requestOptions);
+                    const response = await fetch(`${base.URL_BASE_API}/Posto/BuscaProdutosPosto/${postoid}`, requestOptions);
+                    
+                    if (response.status == 401) {
+                        handleUnauthorized();
+                        return;
+                    };
 
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
-                    }
+                    };
 
                     const data = await response.json();
                     setProdutoPosto(data.data);
@@ -170,6 +177,10 @@ export default function ValoresNegociados() {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
+            if (response.status == 401) {
+                handleUnauthorized();
+                return;
+            };
             setAlert({
                 messageAlert: "Sucesso ao criar uma nova solicitação de abastecimento, aguarde o contato da Combutech, nossa equipe irá entrar em contato com você",
                 typeAlert: 'success',

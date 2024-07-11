@@ -9,6 +9,7 @@ import { BiSolidArrowFromTop } from "react-icons/bi";
 import { MdOutlineAttachMoney } from "react-icons/md";
 import { BsFillFuelPumpFill } from "react-icons/bs";
 import { FaHouseChimney } from "react-icons/fa6";
+import { handleUnauthorized } from '../../../hooks/LogOut';
 import PrimatyTable from "../../Tables/PrimatyTable";
 import base from '../../../hooks/BaseUrlApi';
 import OptionsButton from "../../OptionButton";
@@ -19,6 +20,7 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
+
 
 const style = {
     position: 'absolute',
@@ -164,10 +166,12 @@ export default function ValoresAprovar() {
 
         fetch(`${base.URL_BASE_API}/Posto/AprovarSolicitacao/${selectedRow}`, requestOptions)
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
+
+                if (response.status == 401) {
+                    handleUnauthorized();
+                    console.log('erro')
+                    return;
+                };
             })
             .then(data => {
                 setAlert({
@@ -203,13 +207,16 @@ export default function ValoresAprovar() {
                     headers: headers,
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Erro na requisição. Código de status: ${response.status}`);
-                }
+                if(response.status === 401) {
+                    handleUnauthorized();
+                    console.log('erro')
+                    return;
+                };
+
                 const data = await response.json();
                 setSortedRows(data.data.reverse());
-                console.log(data.data)
                 setDadosOriginais(data.data);
+
             } catch (error) {
                 console.error(error);
             } finally {

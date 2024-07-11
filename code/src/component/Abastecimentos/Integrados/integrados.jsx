@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 
 import UtilBar from "../../UtilBar/UtilBar";
@@ -29,6 +28,7 @@ import { TbEyeSearch } from "react-icons/tb";
 import { FaFilter } from "react-icons/fa";
 import { BiSolidArrowToTop } from "react-icons/bi";
 import { GiHamburgerMenu } from "react-icons/gi";
+import { handleUnauthorized } from '../../../hooks/LogOut';
 
 const columns = [
     { id: 'Options', label: `Opções`, minWidth: 100 },
@@ -41,11 +41,11 @@ const columns = [
     { id: 'postoCNPJ', label: 'CNPJ', minWidth: 170 },
     { id: 'postoNomeFantasia', label: 'Posto', minWidth: 300 },
     { id: 'produtoDescricao', label: 'Produto', minWidth: 170 },
-    { id: 'LitrabastecimentoLitrosos', label: 'Litros', minWidth: 170 },
+    { id: 'abastecimentoLitros', label: 'Litros', minWidth: 170 },
     { id: 'abastecimentoValorUnitario', label: 'Valor Unitário', minWidth: 170 },
     { id: 'abastecimentoValorTotal', label: 'Valor Total', minWidth: 170 },
     { id: 'abastecimentoQuilometragem', label: 'Quilometragem', minWidth: 170 },
-    { id: 'QuilometragemAnterior', label: 'QuilometragemAnterior', minWidth: 190 },
+    { id: 'abastecimentoKMAnterior', label: 'QuilometragemAnterior', minWidth: 190 },
     { id: 'abastecimentoMedia', label: 'Média', minWidth: 90 },
     { id: 'abastecimentoSituacao', label: 'Situação', minWidth: 0 },
 ];
@@ -202,26 +202,33 @@ export default function MainAbastecimentoIntegrado() {
                 const authToken = localStorage.getItem('authToken');
                 const transportadoraValue = Cookies.get('transportadoraId');
 
-                const headers = {
-                    'Authorization': `Bearer ${authToken}`,
-                    'Content-Type': 'application/json'
-                };
+                const headers = { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' };
+
                 const transportadoraId = {
                     transportadoraId: [transportadoraValue],
                     quantidadePorPagina: countPages,
                     pagina: pagina,
                 };
+
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: headers,
                     body: JSON.stringify(transportadoraId)
                 });
+
+                if (response.status === 401) {
+                    handleUnauthorized();
+                    return;
+                }
+
                 if (!response.ok) {
                     throw new Error(`Erro na requisição. Código de status: ${response.status}`);
-                };
+                }
+
                 const data = await response.json();
                 setSortedRows(data.data);
                 setDadosOriginais(data.data);
+
             } catch (error) {
                 console.error(error);
             } finally {
@@ -252,10 +259,18 @@ export default function MainAbastecimentoIntegrado() {
         ...row,
         abastecimentoInconsistencias: (
             <React.Fragment>
-                {row.abastecimentoInconsistencias != null ?
-                    <RiErrorWarningFill size={iconsSize} color="red" />
-                    : <IoIosCheckmarkCircle size={iconsSize} color="green" />
-                }
+                {(() => {
+                    let inconsistenciasArray;
+                    try {
+                        inconsistenciasArray = JSON.parse(row.abastecimentoInconsistencias);
+                    } catch (e) {
+                        // Caso a string não seja um JSON válido
+                        inconsistenciasArray = null;
+                    }
+                    return Array.isArray(inconsistenciasArray) && inconsistenciasArray.length === 0 ?
+                        <IoIosCheckmarkCircle size={iconsSize} color="green" /> :
+                        <RiErrorWarningFill size={iconsSize} color="red" />;
+                })()}
             </React.Fragment>
         ),
 
@@ -276,14 +291,6 @@ export default function MainAbastecimentoIntegrado() {
                     <FaPlusCircle size={iconsSize} />
                     Criar Registro
                 </a>
-            </MenuItem>
-            <MenuItem>
-                <FaRegFilePdf size={iconsSize} />
-                Gerar PDF
-            </MenuItem>
-            <MenuItem>
-                <RiFileExcelLine size={iconsSize} />
-                Gerar Excell
             </MenuItem>
         </UtilBar>
 

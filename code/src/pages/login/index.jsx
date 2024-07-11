@@ -45,8 +45,13 @@ function Login() {
         localStorage.setItem('authToken', data.data.token);
         localStorage.setItem('emailUsuario', data.data.user.nome);
         localStorage.setItem('optionsMenu', modulosString);
-        
+
+        const logo = data?.data?.user?.transportadora?.transportadoralogo;
+        console.log(logo)
+        logo ? localStorage.setItem('img', logo) : null;
+
         const postoid = data?.data?.user?.posto?.postoid ?? null;
+
         if (postoid) {
           localStorage.setItem('postoid', postoid);
         } else {
@@ -61,7 +66,7 @@ function Login() {
           Cookies.set('transportadoraId', data.data.user.transportadora.transportadoraid, { secure: true, sameSite: 'strict' });
         }
 
-        if(data.data.user.posto != null) {
+        if (data.data.user.posto != null) {
           Cookies.set('__StrictModePosto', 1, { secure: true, sameSite: 'strict' });
         } else {
           Cookies.set('__StrictModePosto', 0, { secure: true, sameSite: 'strict' });

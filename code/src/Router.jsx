@@ -2,7 +2,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/home";
 import Layout from "./component/layout";
 
-import Error from "./pages/error";
+import Error from "./pages/InConstrution";
 import Login from "./pages/login";
 import LoginLayout from "./component/layout/LoginLayout";
 import ForgetPassword from "./pages/forget-password";
@@ -27,6 +27,10 @@ import MainUsuarios from "./pages/Usuarios/usuarios";
 import MainDetalheUsuario from "./pages/Usuarios/detalhesUsuario";
 import ValoresAprovarMain from "./pages/Posto/ValoresAprovar/ValoresAprovar";
 import ControleFrotas from "./pages/Controle/ControleFrotas/ControleFrotas";
+import MainCriarUsuario from "./pages/Usuarios/criarUsuario";
+import AlocacaoVeiculo from "./pages/Controle/Alocacao/AlocacaoVeiculo";
+import CriarAlocacao from "./pages/Controle/Alocacao/CriarAlocacao";
+import PageConstruction from "./pages/InConstrution";
 
 const router = createBrowserRouter([
   {
@@ -71,67 +75,67 @@ const router = createBrowserRouter([
       /* Cadastros */
       {
         path: "cadastros/veiculos",
-        element: <CadastrosVeiculos />,
+        element: <PageConstruction />,
       },
       {
         path: "cadastros/veiculos/edit/:id",
-        element: <EditarVeiculo />,
+        element: <PageConstruction />
       },
       {
         path: "cadastros/postos",
-        element: <CadastrosPostos />,
+        element: <PageConstruction />
       },
       {
         path: "cadastros/postos/edit/:id",
-        element: <EditarVeiculo />,
+        element: <PageConstruction />
       },
       {
         path: "cadastros/modelos",
-        element: <CadastrosVeiculos />,
+        element: <PageConstruction />
       },
       {
         path: "cadastros/modelos/edit/:id",
-        element: <EditarVeiculo />,
+        element: <PageConstruction />
       },
       {
         path: "cadastros/motoristas",
-        element: <CadastroMotoristas />,
+        element: <PageConstruction />
       },
       {
         path: "cadastros/motoristas/edit/:id",
-        element: <EditarVeiculo />,
+        element: <PageConstruction />
       },
       {
         path: "cadastros/marcas",
-        element: <CadastrosVeiculos />,
+        element: <PageConstruction />
       },
       {
         path: "cadastros/marcas/edit/:id",
-        element: <EditarVeiculo />,
+        element: <PageConstruction />
       },
       {
-        path: "cadastros/modelocarroceria",
-        element: <CadastrosVeiculos />,
+        path: "cadastros/modelosdecarroceria",
+        element: <PageConstruction />
       },
       {
-        path: "cadastros/modelocarroceria/edit/:id",
-        element: <EditarVeiculo />,
+        path: "cadastros/modelosdecarroceria/edit/:id",
+        element: <PageConstruction />
       },
       {
-        path: "cadastros/tiporodado",
-        element: <CadastrosVeiculos />,
+        path: "cadastros/tiporodados",
+        element: <PageConstruction />
       },
       {
-        path: "cadastros/tiporodado/edit/:id",
-        element: <EditarVeiculo />,
+        path: "cadastros/tiporodados/edit/:id",
+        element: <PageConstruction />
       },
       {
         path: "cadastros/atividades",
-        element: <CadastrosVeiculos />,
+        element: <PageConstruction />
       },
       {
         path: "cadastros/atividades/edit/:id",
-        element: <EditarVeiculo />,
+        element: <PageConstruction />
       },
       /* End Cadastros */
 
@@ -177,6 +181,10 @@ const router = createBrowserRouter([
         path: "usuarios/usuarios/edit/:id",
         element: <MainDetalheUsuario />,
       },
+      {
+        path: "usuarios/usuarios/criarusuario",
+        element: <MainCriarUsuario />,
+      },
 
       /* Posto */
       {
@@ -188,6 +196,34 @@ const router = createBrowserRouter([
       {
         path: "controle/controlefrotas",
         element: <ControleFrotas />,
+      },
+      {
+        path: "controle/alocacao",
+        element: <AlocacaoVeiculo />,
+      },
+      {
+        path: "controle/alocacao/criaralocacao",
+        element: <CriarAlocacao />,
+      },
+
+      /* relatorios */
+      {
+        path: "relatorios/abastecimentos",
+        element: <PageConstruction />
+      },
+      {
+        path: "relatorios/volumeabastecidas",
+        element: <PageConstruction />
+      },
+
+      /* BI */
+      {
+        path: "BI/Abastecidas",
+        element: <PageConstruction />
+      },
+      {
+        path: "BI/AnaliticoAbastecidas",
+        element: <PageConstruction />
       },
 
     ],

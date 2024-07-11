@@ -8,8 +8,11 @@ import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
-import { BsInfoCircleFill } from "react-icons/bs";
 import Resizer from 'react-image-file-resizer';
+import base from '../../../hooks/BaseUrlApi';
+
+import { handleUnauthorized } from '../../../hooks/LogOut';
+import { BsInfoCircleFill } from "react-icons/bs";
 
 const RowForm = styled.div`
     width: 100%;
@@ -120,19 +123,19 @@ export default function AutorizacaoPosto() {
         });
     };
 
-/*  // Função para carregar e redimensionar a imagem
-    const loadAndResizeImage = async () => {
-        if (dadosAbastecimento?.imagens.length > 0) {
-            try {
-                const resizedImage = await resizeImage(dadosAbastecimento.imagens[0]);
-                console.log(resizedImage)
-                setImagemRedimensionada(resizedImage);
-            } catch (error) {
-                console.error('Erro ao redimensionar imagem:', error);
-                console.log(dadosAbastecimento.imagens[0])
+    /*  // Função para carregar e redimensionar a imagem
+        const loadAndResizeImage = async () => {
+            if (dadosAbastecimento?.imagens.length > 0) {
+                try {
+                    const resizedImage = await resizeImage(dadosAbastecimento.imagens[0]);
+                    console.log(resizedImage)
+                    setImagemRedimensionada(resizedImage);
+                } catch (error) {
+                    console.error('Erro ao redimensionar imagem:', error);
+                    console.log(dadosAbastecimento.imagens[0])
+                }
             }
-        }
-    }; */
+        }; */
 
     const handleValorNegociadoChange = (event) => {
         setValorNegociado(event.target.value);
@@ -160,7 +163,13 @@ export default function AutorizacaoPosto() {
                 }
             };
 
-            const response = await fetch(`https://api.combutech.com.br/api/Motorista/BuscaAbastecimentoMotoristaPorToken/${inputValue}`, requestOptions);
+            const response = await fetch(`${base.URL_BASE_API}/Motorista/BuscaAbastecimentoMotoristaPorToken/${inputValue}`, requestOptions);
+
+            if (response.status == 401) {
+                handleUnauthorized();
+                throw new Error('Unauthorized');
+            };
+
             const data = await response.json();
 
             // Verificar se statusCode é 200 e data é null
@@ -171,11 +180,13 @@ export default function AutorizacaoPosto() {
                     show: true
                 });
             } else {
+
                 setDadosAbastecimento(data.data);
-                const responseMotorista = await fetch(`https://api.combutech.com.br/api/Motorista/BuscaMotorista/${data.data.motoristaid}`, requestOptions);
+                const responseMotorista = await fetch(`${base.URL_BASE_API}/Motorista/BuscaMotorista/${data.data.motoristaid}`, requestOptions);
                 const dataMotorista = await responseMotorista.json();
                 setNomeMotorista(dataMotorista.data.motoristanome);
-                setAlert({show: false});
+                setAlert({ show: false });
+
             }
         } catch (error) {
             console.error('Erro ao buscar dados de abastecimento:', error);
@@ -191,11 +202,20 @@ export default function AutorizacaoPosto() {
             'Content-Type': 'application/json'
         };
 
-        fetch(`https://api.combutech.com.br/api/Posto/AutorizarAbastecimentoPorToken/${inputValue}`, {
+        fetch(`${base.URL_BASE_API}/Posto/AutorizarAbastecimentoPorToken/${inputValue}`, {
             method: 'GET',
             headers: headers
         })
-            .then(response => { if (!response.ok) { throw new Error('Erro ao criar abastecimento') } return response.json() })
+            .then(response => {
+                if (response.status == 401) {
+                    handleUnauthorized();
+                    throw new Error('Unauthorized');
+                }
+                if (!response.ok) {
+                    throw new Error('Erro ao criar abastecimento');
+                }
+                return response.json();
+            })
             .then(data => {
                 setAlert({
                     messageAlert: "Token autorizado com sucesso!",
@@ -203,18 +223,20 @@ export default function AutorizacaoPosto() {
                     show: true
                 });
                 setTimeout(() => {
-                    setDadosAbastecimento('')
-                }, 5000)
+                    setDadosAbastecimento('');
+                }, 5000);
                 setTimeout(() => {
-                    location.reload()
-                }, 10000)
+                    location.reload();
+                }, 10000);
             })
             .catch(error => {
-                setAlert({
-                    messageAlert: "Erro ao autorizar abastecimento, tente novamente em instantes ou procure o suporte.",
-                    typeAlert: 'error',
-                    show: true,
-                });
+                if (error.message !== 'Unauthorized') {
+                    setAlert({
+                        messageAlert: "Erro ao autorizar abastecimento, tente novamente em instantes ou procure o suporte.",
+                        typeAlert: 'error',
+                        show: true,
+                    });
+                }
             })
             .finally(() => {
                 setIsLoading(false);
@@ -242,9 +264,9 @@ export default function AutorizacaoPosto() {
         }
     };
 
-/*     useEffect(() => {
-        loadAndResizeImage();
-    }, [dadosAbastecimento]); */
+    /*     useEffect(() => {
+            loadAndResizeImage();
+        }, [dadosAbastecimento]); */
 
     return (
         <React.Fragment>
@@ -364,7 +386,7 @@ export default function AutorizacaoPosto() {
                         inputProps={{ style: { paddingLeft: '10px' } }}
                         sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
                     />
-{/*                     <div style={{ width: 'auto', marginTop: '10px', }} onClick={handleOpen}>
+                    {/*                     <div style={{ width: 'auto', marginTop: '10px', }} onClick={handleOpen}>
                         <IconButton color="primary" aria-label="add an alarm">
                             <CameraAltIcon /><p>Visualizar anexo</p>
                         </IconButton>

@@ -1,29 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import profile from "../../assets/img/profile-pic.png";
-import Cookies from 'js-cookie';
 import { Link } from "react-router-dom";
+import { handleUnauthorized } from '../../hooks/LogOut';
 
-const logout = () => {
-  localStorage.removeItem('authToken');
-  localStorage.removeItem('emailUsuario');
-  localStorage.removeItem('transportadora');
-  localStorage.removeItem('optionsMenu'); 
-  Cookies.remove('transportadoraId', { path: '/' });
-  Cookies.remove('__StrictMode', { path: '/' });
-} 
 
 function Author({ subNav, setSubNav, title }) {
+
+  const [storedImage, setStoredImage] = useState(localStorage.getItem('img'));
+
   return (
     <div className="crancy-header__author" onMouseOver={() => setSubNav(title)}>
-      <Link to="/auth/usuario">
-        <div className="crancy-header__author-img">
-          <img src={profile} alt="#" />
-        </div>
+      <Link to="/auth/usuario" className="crancy-header__author" onMouseOver={() => setSubNav(title)}>
+        <svg
+          className="crancy-header__svg--icon"
+          width="200"
+          height="auto"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ width: '200px', height: '200px' }}
+        >
+          <image
+            href={storedImage}
+            width="200"
+            height="auto"
+            style={{ width: '100%', height: '100%' }}
+          />
+        </svg>
       </Link>
+
+      
       {/* <!-- crancy Profile Hover --> */}
       <div
         className="crancy-balance crancy-profile__hover fm-hover-animation"
-        style={{ display: subNav === title ? "block" : "none" }}
+        style={{ display: subNav === title ? "block" : "none", marginTop: '80px', }}
       >
         <h3 className="crancy-balance__title">Meu perfil</h3>
         {/* <!-- crancy Balance List --> */}
@@ -99,7 +109,7 @@ function Author({ subNav, setSubNav, title }) {
                 </svg>
               </div>
               <h4 className="crancy-balance-name">
-                <a onClick={logout} href="/">Sair</a>
+                <a onClick={handleUnauthorized} href="/">Sair</a>
               </h4>
             </div>
           </li>

@@ -8,10 +8,12 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import base from '../../../hooks/BaseUrlApi';
+import Cookies from 'js-cookie';
 import 'moment/locale/pt-br';
 import 'dayjs/locale/en-gb';
 
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { handleUnauthorized } from '../../../hooks/LogOut';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { Autocomplete } from '@mui/material';
@@ -97,6 +99,7 @@ export default function CriarAbastecimentoIntegrado() {
     const [motoristaEncontrado, setMotoristaEncontrado] = useState(null);
     const [postoEncontrado, setPostoEcontrado] = useState(null);
     const [produtosEncontrado, setProdutosEncontrados] = useState(null);
+    const transportadoraId = Cookies.get('transportadoraId');
     const [dadosFormulario, setDadosFormulario] = React.useState({
         dataAbastecimento: dayjs(),
         idVeiculo: '',
@@ -114,8 +117,6 @@ export default function CriarAbastecimentoIntegrado() {
         show: false
     });
 
-    const transportadoraId = localStorage.getItem('transportadora')
-
     /* Função callback de get dos dados */
     const GetApiDados = async (UrlRequest, callback) => {
         const authToken = localStorage.getItem('authToken');
@@ -125,6 +126,12 @@ export default function CriarAbastecimentoIntegrado() {
         };
         try {
             const resposta = await fetch(`${base.URL_BASE_API}${UrlRequest}`, { method: 'GET', headers: headers });
+
+            if (resposta.status == 401) {
+                handleUnauthorized();
+                return;
+            };
+
             const dados = await resposta.json();
             callback(dados.data || []);
         } catch (erro) {

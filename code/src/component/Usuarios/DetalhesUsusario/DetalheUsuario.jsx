@@ -9,6 +9,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { useLocation } from 'react-router-dom';
 import { IoCheckmarkCircleSharp } from "react-icons/io5";
+import { handleUnauthorized } from '../../../hooks/LogOut';
 
 const RowForm = styled.div`
     width: 100%;
@@ -129,6 +130,10 @@ export default function DetalhesUsuarios() {
                 method: 'GET',
                 headers: headers,
             });
+            if (response.status == 401) {
+                handleUnauthorized();
+                return;
+            };
             if (!response.ok) {
                 throw new Error(`Erro na requisição. Código de status: ${response.status}`);
             }

@@ -1,8 +1,16 @@
+import UtilBar from "../../UtilBar/UtilBar";
+import OptionsButton from "../../OptionButton";
+import PrimatyTable from "../../Tables/PrimatyTable";
+import DefautlLoadingTable from '../../loadings/loadingsTables/defaultLoadingTables';
+import base from '../../../hooks/BaseUrlApi';
+import Cookies from 'js-cookie';
+
 import { useEffect } from 'react'
 import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
 import { styled } from '@mui/system';
 import { FaRegFilePdf } from "react-icons/fa";
 import { RiFileExcelLine } from "react-icons/ri";
+import { GiHamburgerMenu } from "react-icons/gi";
 import { FaPlusCircle } from "react-icons/fa";
 import { BiSolidArrowToTop } from "react-icons/bi";
 import { BiSolidArrowFromTop } from "react-icons/bi";
@@ -11,10 +19,6 @@ import { FaPencil } from "react-icons/fa6";
 import { TbEyeSearch } from "react-icons/tb";
 import { useNavigate } from 'react-router-dom';
 import { FaFilter } from "react-icons/fa";
-import UtilBar from "../../UtilBar/UtilBar";
-import OptionsButton from "../../OptionButton";
-import PrimatyTable from "../../Tables/PrimatyTable";
-import DefautlLoadingTable from '../../loadings/loadingsTables/defaultLoadingTables';
 
 const columns = [
     { id: 'Options', label: `Options`, minWidth: 100 },
@@ -41,6 +45,7 @@ export default function MainCadastroVeiculo() {
     const [sortOrder, setSortOrder] = useState('asc');
     const [dadosLoading, setDadosLoading] = useState(true);
     const [open, setOpen] = useState(false);
+    const transportadoraId = Cookies.get('transportadoraId');
     const handleClose = () => setOpen(false);
     const navigate = useNavigate();
     const iconsSize = 20;
@@ -52,7 +57,7 @@ export default function MainCadastroVeiculo() {
 
     /* GET dos dados */
     useEffect(() => {
-        const url = 'https://api.combutech.com.br/api/api/Veiculo/BuscaVeiculosPorTransportadora/';
+        const url = `${base.URL_BASE_API}/Veiculo/BuscaVeiculosPorTransportadora/${transportadoraId}`;
         const authToken = localStorage.getItem('authToken');
 
         const headers = {
@@ -72,7 +77,6 @@ export default function MainCadastroVeiculo() {
             })
             .then(data => {
                 setSortedRows(data.data || []);
-                console.log(data.data);
             })
             .catch(error => {
                 console.error(error);
@@ -101,20 +105,12 @@ export default function MainCadastroVeiculo() {
 
     return <>
         {/* Menu superior de opções */}
-        <UtilBar titleButton="Opções">
+        <UtilBar titleButton={<GiHamburgerMenu />}>
             <MenuItem>
-                <a href="#">
+                <a href="/auth/controle/alocacao/criaralocacao">
                     <FaPlusCircle size={iconsSize} />
-                    Criar Registro
+                    Criar alocação
                 </a>
-            </MenuItem>
-            <MenuItem>
-                <FaRegFilePdf size={iconsSize} />
-                Gerar PDF
-            </MenuItem>
-            <MenuItem>
-                <RiFileExcelLine size={iconsSize} />
-                Gerar Excell
             </MenuItem>
         </UtilBar>
 

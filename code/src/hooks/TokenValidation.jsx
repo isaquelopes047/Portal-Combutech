@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import base from '../hooks/BaseUrlApi';
 
 const withAuth = (WrappedComponent) => {
     return (props) => {
@@ -14,7 +15,7 @@ const withAuth = (WrappedComponent) => {
                 navigate("/");
             } else {
                 try {
-                    const response = await fetch('https://api.combutech.com.br/api/Motorista/BuscaMotoristas', {
+                    const response = await fetch(`${base.URL_BASE_API}/Motorista/BuscaMotoristas`, {
                         method: 'GET',
                         headers: {
                             'Authorization': `Bearer ${Token}`

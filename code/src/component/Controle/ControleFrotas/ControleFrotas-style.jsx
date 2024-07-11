@@ -44,6 +44,10 @@ export const MainCardTrava = styled.div`
         display: flex;
         justify-content: flex-start;
         align-items: center;
+
+        @media (max-width: 785px) {
+            flex-direction: column;
+        }
     }
 `;
 
@@ -52,6 +56,11 @@ export const CardTravaSubMenu = styled.div`
     height: 200px;
     margin-left: 15px;
     padding: 15px 0;
+
+    @media (max-width: 785px) {
+        width: 90%;
+        margin-left: 0px;
+    }
 
     & > div:nth-child(1){
         width: 100%;
@@ -79,7 +88,7 @@ export const CardTravaSubMenu = styled.div`
         flex-direction: column ;
         border: 1px solid #e9e9e9;
 
-        & > div:nth-child(1){
+        & > div{
             width: 100%;
             height: 50%;
             display: flex;
@@ -88,7 +97,7 @@ export const CardTravaSubMenu = styled.div`
 
             & > p {
                 margin: 0;
-                margin-left: 10px;
+                margin-left: 20px;
             }
         }
     }
@@ -107,5 +116,15 @@ export const InputEnvio = styled.div`
         background-color: #1e56c0;
         color: #fff;
         font-weight: 200;
+    }
+`
+
+export const MainContainer = styled.div`
+    width: 100%;
+    height: auto;
+    margin-top: 20px;
+
+    @media (max-width: 606px) {
+        
     }
 `
