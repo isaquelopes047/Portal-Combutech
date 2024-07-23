@@ -7,12 +7,15 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Alert from '@mui/material/Alert';
 import InputMask from "react-input-mask";
 import base from '../../../hooks/BaseUrlApi';
+import Autocomplete from '@mui/material/Autocomplete';
+import Stack from '@mui/material/Stack';
 import { BsPencil } from "react-icons/bs";
 import { ButtonAccept } from './ValoresNegociados-style';
 import { IoCheckmarkCircleSharp } from "react-icons/io5";
@@ -31,8 +34,8 @@ const style = {
 
 const EditContainer = () => {
     const style = {
-        width: 40,
-        height: 40,
+        width: 30,
+        height: 30,
         backgroundColor: '#0a82fd',
         borderRadius: '50%',
         display: 'flex',
@@ -43,7 +46,7 @@ const EditContainer = () => {
 
     return (
         <div style={{ ...style }}>
-            <BsPencil color='#fff' size={18} />
+            <BsPencil color='#fff' size={13} />
         </div>
     )
 };
@@ -69,36 +72,51 @@ const columns = [
     { id: 'alterar', label: 'Negociar' },
 ];
 
-const defaultInputsAutoComplete = {
-    '& .css-16e8wmc-MuiAutocomplete-root, & .MuiOutlinedInput-root, & .MuiAutocomplete-input': { paddingLeft: 1, paddingTop: 0, height: '40px' },
-    '& .MuiAutocomplete-hasPopupIcon.css-6c6kjn-MuiAutocomplete-root, & .MuiOutlinedInput-root, & .MuiAutocomplete-hasClearIcon.css-6c6kjn-MuiAutocomplete-root, & .MuiOutlinedInput-root': { height: '50px' },
-};
-
 const defaultInputStyle = {
-    border: 'none',
+    flex: 1,
+    marginTop: 1.5,
+    height: '65px',
     '& input': {
+        marginLeft: 0,
         backgroundColor: '#fff',
-        border: 'none',
+        border: 0,
+        paddingLeft: 0,
     },
     '& input:focus': {
         backgroundColor: '#fff',
-        border: 'none',
+        border: 0,
     }
 };
 
+const defaultInputsAutoComplete = {
+    '& label.Mui-focused': { paddingLeft: 0 },
+    '& .css-16e8wmc-MuiAutocomplete-root, & .MuiOutlinedInput-root, & .MuiAutocomplete-input': { paddingLeft: 1, paddingTop: 0, height: '40px' },
+    '& .css-1q60rmi-MuiAutocomplete-endAdornment': { top: 0 },
+    '& .MuiAutocomplete-hasPopupIcon.css-6c6kjn-MuiAutocomplete-root, & .MuiOutlinedInput-root, & .MuiAutocomplete-hasClearIcon.css-6c6kjn-MuiAutocomplete-root, & .MuiOutlinedInput-root': { height: '50px' },
+    '& .MuiButtonBase-root, & .MuiIconButton-root & .MuiIconButton-sizeMedium & .MuiAutocomplete-popupIndicator & .css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator': { display: 'none' },
+    '& .label.Mui-focused': { marginTop: 50 }
+};
+
 export default function ValoresNegociados() {
+
+    const [cnpj, setCnpj] = useState(localStorage.getItem('emailUsuario'));
+    const [resultado, setResultado] = useState(null);
     const [open, setOpen] = React.useState(false);
+    const [transportadorasDados, setTransportadorasDados] = useState([]);
     const [produtoPosto, setProdutoPosto] = useState([]);
-    const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
     const [currentPrecoNegociado, setCurrentPrecoNegociado] = useState(0);
-    const [currentLitragemMaxima, setCurrentLitragemMaxima] = useState(0);
+    const [dadosLoading, setDadosLoading] = useState(true);
+    const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
+    const [transportadoraId, setTransportadoraId] = useState(0);
     const [formularioEnvio, setFormularioEnvio] = useState({
         observacao: "",
         idProduto: null,
         idProdutoPosto: null,
         precoNegociado: null,
-        maximaLitragem: null,
-    })
+        maximaLitragem: 0,
+        preco: true,
+        litragem: true
+    });
     const [alert, setAlert] = useState({
         messageAlert: '',
         typeAlert: '',
@@ -107,33 +125,72 @@ export default function ValoresNegociados() {
 
     /* Get produtos posto */
     useEffect(() => {
-        const fetchProdutosPosto = async () => {
-            const postoid = localStorage.getItem('postoid');
-
-            if (postoid) {
-                try {
-                    const requestOptions = { method: 'GET', headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' } };
-                    const response = await fetch(`${base.URL_BASE_API}/Posto/BuscaProdutosPosto/${postoid}`, requestOptions);
-                    
-                    if (response.status == 401) {
-                        handleUnauthorized();
-                        return;
-                    };
-
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    };
-
-                    const data = await response.json();
-                    setProdutoPosto(data.data);
-                } catch (error) {
-                    console.error('Fetch error:', error);
+        const buscarDados = async () => {
+            try {
+                setDadosLoading(true);
+                const authToken = localStorage.getItem('authToken');
+                if (!authToken) {
+                    throw new Error('Token de autenticação não encontrado');
                 }
+                const url = `${base.URL_BASE_API}/Transportadora/BuscaTransportadoras`;
+                const headers = { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' };
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: headers,
+                });
+                if (!response.ok) { throw new Error(`Erro na requisição. Código de status: ${response.status}`); }
+                const data = await response.json();
+                setTransportadorasDados(data.data);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setDadosLoading(false);
             }
         };
-
-        fetchProdutosPosto();
+        buscarDados();
     }, []);
+
+    /* Get produtos posto */
+    useEffect(() => {
+        const fetchProdutosPosto = async () => {
+
+            try {
+                const requestOptions = { method: 'GET', headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' } };
+                const response = await fetch(`${base.URL_BASE_API}/Posto/BuscaPostosPorTransportadora/${transportadoraId}`, requestOptions);
+
+                if (response.status == 401) {
+                    handleUnauthorized();
+                    return;
+                };
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                };
+
+                const data = await response.json();
+                setProdutoPosto(data.data);
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }
+
+        };
+        fetchProdutosPosto();
+    }, [transportadoraId]);
+    
+    useEffect(() => {
+        if (produtoPosto.length > 0) {
+            pesquisarPorCnpj(cnpj);
+        }
+    }, [produtoPosto]);
+    
+    const pesquisarPorCnpj = (cnpj) => {
+        const postoEncontrado = produtoPosto.find(posto => posto.postocnpj.trim() === cnpj.trim());
+        if (postoEncontrado) {
+            setResultado(postoEncontrado.produtosPosto);
+        } else {
+            setResultado(null);
+        }
+    };
 
     const handleChangeForNumber = (valor) => {
         setCurrentPrecoNegociado(valor);
@@ -141,6 +198,16 @@ export default function ValoresNegociados() {
             ...prevFormulario,
             precoNegociado: parseFloat(valor)
         }));
+    };
+
+    const handleAutocompleteChange = (event, value) => {
+        if (value) {
+            const transportadoraSelecionada = transportadorasDados.find(transportadora => transportadora.transportadorarazaosocial === value);
+            if (transportadoraSelecionada) {
+                const idSelecionado = transportadoraSelecionada.transportadoraid;
+                setTransportadoraId(idSelecionado);
+            }
+        }
     };
 
     const handleOpen = (row) => {
@@ -173,7 +240,7 @@ export default function ValoresNegociados() {
                 headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify(formularioEnvio)
             };
-            const response = await fetch('https://api.combutech.com.br/api/Posto/CriarSolicitacao', requestOptions);
+            const response = await fetch(`${base.URL_BASE_API}/Posto/CriarSolicitacao`, requestOptions);
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -205,35 +272,70 @@ export default function ValoresNegociados() {
 
     return (
         <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
-            <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} aria-label="caption table">
-                    <caption>Valores individuais dos produtos negociados</caption>
-                    <TableHead>
-                        <TableRow>
-                            {columns.map((column) => (
-                                <TableCell key={column.id}>
-                                    {column.label}
-                                </TableCell>
-                            ))}
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {produtoPosto.map((row) => (
-                            <TableRow key={row.produtoid}>
-                                <TableCell component="th" scope="row">
-                                    {produtoMap[row.produtoid] || "Descrição não encontrada"}
-                                </TableCell>
-                                <TableCell align="left">R$ {row.produtopostopreconegociado}</TableCell>
-                                <TableCell align="left" onClick={() => handleOpen(row)}>
-                                    <div>
-                                        <EditContainer onClick={() => handleOpen(row)} />
-                                    </div>
-                                </TableCell>
+
+            <div style={{ height: '120px' }}>
+                <Stack spacing={2} sx={{ width: '300px' }}>
+                    <Autocomplete
+                        sx={{ ...defaultInputStyle, ...defaultInputsAutoComplete }}
+                        options={transportadorasDados.map((option) => option.transportadorarazaosocial)}
+                        onChange={handleAutocompleteChange}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="Pesquisar transportadoras"
+                                sx={{ fontSize: '10px', }}
+                                InputProps={{
+                                    ...params.InputProps,
+                                    type: 'search',
+                                }}
+                            />
+                        )}
+                    />
+                </Stack>
+                <p style={{ fontSize: '14px', marginTop: '5px', }}>Pesquise a transportadora para visualizar seus produtos </p>
+            </div>
+
+            {dadosLoading ? (
+                <Box sx={{ display: 'flex' }}>
+                    <CircularProgress />
+                </Box>
+            ) : (
+                <TableContainer component={Paper}>
+                    <Table sx={{ minWidth: 650 }} aria-label="caption table">
+                        <caption>Valores individuais dos produtos negociados</caption>
+                        <TableHead>
+                            <TableRow>
+                                {columns.map((column) => (
+                                    <TableCell key={column.id}>
+                                        {column.label}
+                                    </TableCell>
+                                ))}
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+                        </TableHead>
+                        <TableBody>
+                                {resultado && resultado.length > 0 ? (
+                                    resultado.map((row) => (
+                                        <TableRow key={row.produtoid}>
+                                            <TableCell component="th" scope="row">
+                                                {produtoMap[row.produtoid] || "Descrição não encontrada"}
+                                            </TableCell>
+                                            <TableCell align="left">R$ {row.produtopostopreconegociado}</TableCell>
+                                            <TableCell align="left" onClick={() => handleOpen(row)}>
+                                                <div>
+                                                    <EditContainer onClick={() => handleOpen(row)} />
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={3}>Nenhum produto encontrado</TableCell>
+                                    </TableRow>
+                                )}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+            )}
 
             <Typography sx={{ marginLeft: '-12px', marginTop: '15px' }}>Você pode solicitar a mudança do valor negociado a qualquer momento. Esse processo abrirá um chamado à Combutech sobre a negociação do valor solicitado, e estará em aberto para aprovação.</Typography>
 
@@ -242,7 +344,7 @@ export default function ValoresNegociados() {
                 onClose={handleClose}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
-                sx={{ ...defaultInputsAutoComplete, ...defaultInputStyle }}
+                sx={{ ...defaultInputsAutoComplete, ...defaultInputStyle,  marginTop: '400px' }}
             >
                 <Box sx={style}>
 

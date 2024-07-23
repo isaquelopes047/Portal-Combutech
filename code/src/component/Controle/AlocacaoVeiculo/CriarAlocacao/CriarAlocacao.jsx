@@ -3,6 +3,7 @@ import Cookies from 'js-cookie';
 import base from '../../../../hooks/BaseUrlApi';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
 
 import { MainCriarAlocacaoStyle } from './CriarAlocacao-style';
 import { Autocomplete } from '@mui/material';
@@ -49,6 +50,12 @@ export default function MainCriarAlocacao() {
         veiculoid: null
     });
 
+    const [alert, setAlert] = useState({
+        messageAlert: '',
+        typeAlert: '',
+        show: false
+    });
+
     /* Função callback de get dos dados */
     const GetApiDados = async (UrlRequest, callback) => {
         const authToken = localStorage.getItem('authToken');
@@ -66,30 +73,42 @@ export default function MainCriarAlocacao() {
     };
 
     /* envio dos dados */
-    const handleSubmit = async (event) => {
+    const handleSubmit = (event) => {
         event.preventDefault();
         const authToken = localStorage.getItem('authToken');
         const headers = {
             'Authorization': `Bearer ${authToken}`,
             'Content-Type': 'application/json'
         };
-        try {
-            const response = await fetch(`${base.URL_BASE_API}/Veiculo/RegistraAlocacaoVeiculo`, {
-                method: 'POST',
-                headers: headers,
-                body: JSON.stringify({
-                    motoristaid: dadosFormulario.motoristaid || 0,
-                    veiculoid: dadosFormulario.veiculoid || 0
-                })
+
+        fetch(`${base.URL_BASE_API}/Veiculo/RegistraAlocacaoVeiculo`, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({
+                motoristaid: dadosFormulario.motoristaid || 0,
+                veiculoid: dadosFormulario.veiculoid || 0
+            })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erro na requisição. Código de status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(result => {
+                setAlert({
+                    messageAlert: "Veículo vinculado com sucesso!",
+                    typeAlert: 'success',
+                    show: true
+                });
+            })
+            .catch(error => {
+                setAlert({
+                    messageAlert: "Esse veiculo já tem uma alocação criada, por favor exclua a alocação antiga na tela de alocações.",
+                    typeAlert: 'error',
+                    show: true
+                });
             });
-            if (!response.ok) {
-                throw new Error(`Erro na requisição. Código de status: ${response.status}`);
-            }
-            const result = await response.json();
-            console.log('Sucesso:', result);
-        } catch (error) {
-            console.error('Erro ao enviar os dados:', error);
-        }
     };
 
     useEffect(() => {
@@ -107,13 +126,23 @@ export default function MainCriarAlocacao() {
             <p>Alocação de veiculos</p>
         </div>
 
+        {alert.show ? (
+            <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
+                <div>
+                    <Alert severity={alert.typeAlert}>{alert.messageAlert}</Alert>
+                    {!alert.messageAlert.startsWith('Erro')}
+                </div>
+            </div>
+        ) : (null)}
+
         <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
+
             <MainCriarAlocacaoStyle>
                 <div>
-                    <p> Selecione um Veículo</p>
+                    <p>Selecione um Motorista</p>
                     <div>
                         <div>
-                            <p> Faça a busca por placa do veiculo da sua transportadora</p>
+                            <p>Faça a busca pelo nome do motorista da sua transportadora</p>
                         </div>
                         <Autocomplete
                             sx={{ ...defaultInputStyle, paddingX: 1, ...defaultInputsAutoComplete }}
@@ -136,16 +165,16 @@ export default function MainCriarAlocacao() {
                             filterOptions={(options, { inputValue }) => options.filter((option) => option.motoristanome.toLowerCase().includes(inputValue.toLowerCase())).slice(0, 5)}
                         />
                         <div>
-                            <p>Ao selecionar a placa, você estará alocando o veículo à frota. Essa ação estabelecerá a relação dos registros, permitindo um controle mais eficaz e um monitoramento detalhado das operações. Com isso, você garante que todas as atividades sejam acompanhadas de perto, melhorando a eficiência e a organização da sua transportadora.</p>
+                            <p>Ao selecionar o motorista, você estará alocando-o à frota. Essa ação estabelecerá a relação dos registros, permitindo um controle mais eficaz e um monitoramento detalhado das operações. Com isso, você garante que todas as atividades sejam acompanhadas de perto, melhorando a eficiência e a organização da sua transportadora.</p>
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <p> Selecione um Motorista</p>
+                    <p> Selecione um Veículo</p>
                     <div>
                         <div>
-                            <p> Faça a busca pelo nome do motorista da sua transportadora</p>
+                            <p> Faça a busca pela placa do veículo da sua transportadora</p>
                         </div>
                         <Autocomplete
                             sx={{ ...defaultInputStyle, paddingX: 1, ...defaultInputsAutoComplete }}
@@ -168,14 +197,17 @@ export default function MainCriarAlocacao() {
                             filterOptions={(options, { inputValue }) => options.filter((option) => option.veiculoplaca.toLowerCase().includes(inputValue.toLowerCase())).slice(0, 5)}
                         />
                         <div>
-                            <p>Ao selecionar o motorista, você estará alocando-o à frota. Essa ação estabelecerá a relação dos registros, permitindo um controle mais eficaz e um monitoramento detalhado das operações. Com isso, você garante que todas as atividades sejam acompanhadas de perto, melhorando a eficiência e a organização da sua transportadora.</p>
+                            <p>Ao selecionar a placa, você estará alocando o veículo à frota. Essa ação estabelecerá a relação dos registros, permitindo um controle mais eficaz e um monitoramento detalhado das operações. Com isso, você garante que todas as atividades sejam acompanhadas de perto, melhorando a eficiência e a organização da sua transportadora.</p>
                         </div>
                     </div>
                 </div>
             </MainCriarAlocacaoStyle>
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
-                Enviar
-            </Button>
+
+            <div style={{ width: '250px' }}>
+                <Button variant="contained" color="primary" sx={{height: 40, marginLeft: 2,}} onClick={handleSubmit}>
+                    Alocar
+                </Button>
+            </div>
         </div>
     </>
 };

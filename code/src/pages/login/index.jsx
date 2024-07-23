@@ -47,7 +47,6 @@ function Login() {
         localStorage.setItem('optionsMenu', modulosString);
 
         const logo = data?.data?.user?.transportadora?.transportadoralogo;
-        console.log(logo)
         logo ? localStorage.setItem('img', logo) : null;
 
         const postoid = data?.data?.user?.posto?.postoid ?? null;

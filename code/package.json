@@ -42,7 +42,8 @@
     "react-input-mask": "2.0.4",
     "react-router-dom": "^6.21.1",
     "react-text-mask": "^5.5.0",
-    "styled-components": "^6.1.3"
+    "styled-components": "^6.1.3",
+    "prop-types": "latest"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",
