@@ -5,19 +5,23 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 
-import { MainCriarAlocacaoStyle } from './CriarAlocacao-style';
+import { MainCriarAlocacaoStyle, ContainerButtonSend, ContainerInfo } from './CriarAlocacao-style';
 import { Autocomplete } from '@mui/material';
+import { handleUnauthorized } from '../../../../hooks/LogOut';
+import { GoPeople } from "react-icons/go";
+import { CiDeliveryTruck } from "react-icons/ci";
 import { handlePlacaChange, verificarPlaca, handleMotoristaChange, verificarMotorista } from './AlocacaoFunctions/FuncoesUtilitarias';
+
 
 const defaultInputStyle = {
     flex: 1,
-    marginTop: 1.5,
-    height: '65px',
+    marginTop: 0,
+    height: '40px',
     '& input': {
         marginLeft: 0,
-        backgroundColor: '#fff',
+
         border: 0,
-        paddingLeft: 1,
+        paddingLeft: 0,
     },
     '& input:focus': {
         backgroundColor: '#fff',
@@ -27,7 +31,7 @@ const defaultInputStyle = {
 
 const defaultInputsAutoComplete = {
     '& label.Mui-focused': { paddingLeft: 0 },
-    '& .css-16e8wmc-MuiAutocomplete-root, & .MuiOutlinedInput-root, & .MuiAutocomplete-input': { paddingLeft: 0, paddingTop: 0, height: '40px' },
+    '& .css-16e8wmc-MuiAutocomplete-root, & .MuiOutlinedInput-root, & .MuiAutocomplete-input': { padding: 0, height: '35px' },
     '& .css-1q60rmi-MuiAutocomplete-endAdornment': { top: 0 },
     '& .MuiAutocomplete-hasPopupIcon.css-6c6kjn-MuiAutocomplete-root, & .MuiOutlinedInput-root, & .MuiAutocomplete-hasClearIcon.css-6c6kjn-MuiAutocomplete-root, & .MuiOutlinedInput-root': { height: '50px' },
     '& .MuiButtonBase-root, & .MuiIconButton-root & .MuiIconButton-sizeMedium & .MuiAutocomplete-popupIndicator & .css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator': { display: 'none' },
@@ -35,7 +39,6 @@ const defaultInputsAutoComplete = {
 };
 
 export default function MainCriarAlocacao() {
-
     const [motoristaTransportadora, setMotoristaTransportadora] = useState([]);
     const [nomeMotorista, setNomeMotorista] = useState([]);
     const [motoristaDigitado, setMotoristaDigitado] = useState('');
@@ -43,6 +46,9 @@ export default function MainCriarAlocacao() {
     const [veiculoTransportadora, setVeiculoTransportadora] = useState([]);
     const [placaVeiculo, setPlacaVeiculo] = useState([]);
     const [placaDigitada, setPlacaDigitada] = useState('');
+
+    const [disabledInputs, setDisabledInputs] = useState(true);
+    const [disabledButtonSend, setDisabledButtonSend] = useState(true);
 
     const transportadoraId = Cookies.get('transportadoraId');
     const [dadosFormulario, setDadosFormulario] = React.useState({
@@ -65,10 +71,21 @@ export default function MainCriarAlocacao() {
         };
         try {
             const resposta = await fetch(`${base.URL_BASE_API}${UrlRequest}`, { method: 'GET', headers: headers });
+
+            if (resposta.status === 401) {
+                handleUnauthorized();
+                return;
+            }
+
             const dados = await resposta.json();
             callback(dados.data || []);
+            setDisabledInputs(false)
         } catch (erro) {
-            console.error('Erro ao carregar placas da API:', erro);
+            setAlert({
+                messageAlert: "Erro ao carregar os dados, tente novamente mais tarde",
+                typeAlert: 'error',
+                show: true
+            });
         }
     };
 
@@ -90,6 +107,10 @@ export default function MainCriarAlocacao() {
             })
         })
             .then(response => {
+                if (response.status === 401) {
+                    handleUnauthorized();
+                    return;
+                }
                 if (!response.ok) {
                     throw new Error(`Erro na requisição. Código de status: ${response.status}`);
                 }
@@ -121,6 +142,15 @@ export default function MainCriarAlocacao() {
         });
     }, []);
 
+    /* habilita os input de envio com o preenchimento dos dados do state de POST */
+    useEffect(() => {
+        if (dadosFormulario.motoristaid !== null && dadosFormulario.veiculoid !== null) {
+            setDisabledButtonSend(false);
+        } else {
+            setDisabledButtonSend(true);
+        }
+    }, [dadosFormulario]);
+
     return <>
         <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
             <p>Alocação de veiculos</p>
@@ -139,12 +169,17 @@ export default function MainCriarAlocacao() {
 
             <MainCriarAlocacaoStyle>
                 <div>
-                    <p>Selecione um Motorista</p>
+                    <span>
+                        <GoPeople size={25}/>
+                        <p>Selecione um Motorista</p>
+                    </span>
                     <div>
                         <div>
                             <p>Faça a busca pelo nome do motorista da sua transportadora</p>
                         </div>
                         <Autocomplete
+                            disabled={disabledInputs}
+                            freeSolo
                             sx={{ ...defaultInputStyle, paddingX: 1, ...defaultInputsAutoComplete }}
                             options={motoristaTransportadora}
                             getOptionLabel={(option) => option.motoristanome || 'Motorista'}
@@ -164,19 +199,21 @@ export default function MainCriarAlocacao() {
                             )}
                             filterOptions={(options, { inputValue }) => options.filter((option) => option.motoristanome.toLowerCase().includes(inputValue.toLowerCase())).slice(0, 5)}
                         />
-                        <div>
-                            <p>Ao selecionar o motorista, você estará alocando-o à frota. Essa ação estabelecerá a relação dos registros, permitindo um controle mais eficaz e um monitoramento detalhado das operações. Com isso, você garante que todas as atividades sejam acompanhadas de perto, melhorando a eficiência e a organização da sua transportadora.</p>
-                        </div>
                     </div>
                 </div>
 
                 <div>
-                    <p> Selecione um Veículo</p>
+                    <span>
+                        <CiDeliveryTruck size={28} />
+                        <p>Selecione um Veículo</p>
+                    </span>
                     <div>
                         <div>
                             <p> Faça a busca pela placa do veículo da sua transportadora</p>
                         </div>
                         <Autocomplete
+                            disabled={disabledInputs}
+                            freeSolo
                             sx={{ ...defaultInputStyle, paddingX: 1, ...defaultInputsAutoComplete }}
                             options={veiculoTransportadora}
                             getOptionLabel={(option) => option.veiculoplaca || 'Veículo'}
@@ -196,18 +233,19 @@ export default function MainCriarAlocacao() {
                             )}
                             filterOptions={(options, { inputValue }) => options.filter((option) => option.veiculoplaca.toLowerCase().includes(inputValue.toLowerCase())).slice(0, 5)}
                         />
-                        <div>
-                            <p>Ao selecionar a placa, você estará alocando o veículo à frota. Essa ação estabelecerá a relação dos registros, permitindo um controle mais eficaz e um monitoramento detalhado das operações. Com isso, você garante que todas as atividades sejam acompanhadas de perto, melhorando a eficiência e a organização da sua transportadora.</p>
-                        </div>
                     </div>
                 </div>
             </MainCriarAlocacaoStyle>
 
-            <div style={{ width: '250px' }}>
-                <Button variant="contained" color="primary" sx={{height: 40, marginLeft: 2,}} onClick={handleSubmit}>
+            <ContainerInfo>
+                <p>Ao selecionar o motorista, você estará alocando-o à frota. Essa ação estabelecerá a relação dos registros, permitindo um controle mais eficaz e um monitoramento detalhado das operações. Com isso, você garante que todas as atividades sejam acompanhadas de perto, melhorando a eficiência e a organização da sua transportadora.</p>
+            </ContainerInfo>
+
+            <ContainerButtonSend>
+                <Button variant="contained" color="primary" onClick={handleSubmit} disabled={disabledButtonSend}>
                     Alocar
                 </Button>
-            </div>
+            </ContainerButtonSend>
         </div>
     </>
 };

@@ -53,7 +53,7 @@ function LoginLayout({ children }) {
 
                   </div>
                   <p className="crancy-wc__footer--copyright">
-                    @ 2023 <a href="https://www.combutech.com.br">Combutech.</a> Todos os direitos reservados.{" "}
+                    @ 2024 <a href="https://www.combutech.com.br">Combutech.</a> Todos os direitos reservados.{" "}
                   </p>
                 </div>
                 {/* <!-- End Footer Top --> */}

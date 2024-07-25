@@ -7,8 +7,11 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import base from '../../../hooks/BaseUrlApi';
-import { handleUnauthorized } from '../../../hooks/LogOut';
 import Alert from '@mui/material/Alert';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 
 const RowForm = styled.div`
     width: 100%;
@@ -49,39 +52,10 @@ const defaultInputStyle = {
     }
 };
 
-const ModalMain = styled.div`
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 600px;
-    background-color: #fff;
-    box-shadow: 24;
-    padding: 25px;
-
-    @media (max-width: 620px) {
-        width: 80vw;
-    }
-`
-
-const ButtonAccept = styled.div`
-    width: 100%;
-    height: 50px;
-    background-color: #0a82fd;
-    border-radius: 5px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-
-    &:hover {
-        background-color: #3772ad
-    }
-`;
-
 export default function CriarUsuario() {
     const [showPassword, setShowPassword] = useState(false);
     const [message, setMessage] = useState('');
+    const [typeUser, setTypeUser] = useState('');
     const [dadosCriar, setDadosCriar] = useState({
         email: '',
         user: '',
@@ -104,6 +78,10 @@ export default function CriarUsuario() {
             ...dadosCriar,
             [name]: value
         });
+    };
+
+    const handleChangeUser = (event) => {
+        setTypeUser(event.target.value);
     };
 
     const handleSubmit = async (e) => {
@@ -188,12 +166,35 @@ export default function CriarUsuario() {
                     sx={{ ...defaultInputStyle, paddingX: 0, '& label.Mui-focused': { marginLeft: 0 } }}
                     required
                 />
+
+                <FormControl sx={{ 
+                    ...defaultInputStyle, 
+                    paddingX: 1, 
+                    '& label.Mui-focused': { marginLeft: 1 }, 
+                    '& .MuiInputBase-root': { height: '50px'}, 
+                    '& .MuiOutlinedInput-root': { height: '50px' 
+                }}}>
+                    <InputLabel id="demo-simple-select-label">Tipo de usuario</InputLabel>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        label="Tipo de usuario"
+                        onChange={handleChangeUser}
+                    >
+                        <MenuItem value={10}>Transportadora</MenuItem>
+                        <MenuItem value={20}>Motorista</MenuItem>
+                        <MenuItem value={30}>Posto</MenuItem>
+                    </Select>
+                </FormControl>
+
+            </RowForm>
+            <RowForm>
                 <TextField
                     label='Usuario'
                     name='user'
                     value={dadosCriar.user}
                     onChange={handleChange}
-                    sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
+                    sx={{ ...defaultInputStyle, paddingX: 0, '& label.Mui-focused': { marginLeft: 0 } }}
                     required
                 />
             </RowForm>
