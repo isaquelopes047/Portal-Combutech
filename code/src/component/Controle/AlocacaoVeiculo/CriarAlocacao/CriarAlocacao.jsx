@@ -111,17 +111,14 @@ export default function MainCriarAlocacao() {
                     handleUnauthorized();
                     return;
                 }
-                if (!response.ok) {
-                    throw new Error(`Erro na requisição. Código de status: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`Erro na requisição. Código de status: ${response.status}`); 
                 return response.json();
             })
             .then(result => {
-                setAlert({
-                    messageAlert: "Veículo vinculado com sucesso!",
-                    typeAlert: 'success',
-                    show: true
-                });
+                setAlert({ messageAlert: "Veículo vinculado com sucesso!", typeAlert: 'success', show: true });
+                setDadosFormulario({ motoristaid: null,  veiculoid: null });
+                setMotoristaDigitado('');
+                setPlacaDigitada('');
             })
             .catch(error => {
                 setAlert({

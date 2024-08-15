@@ -1,10 +1,6 @@
 import React from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import bg from "../../assets/img/credential-bg.svg";
-import logoW from "../../assets/img/logo-white.png";
-import logoCombutech from '../../assets/img/logo.png'
-import welcomeImg from "../../assets/img/welcome-vector.png";
-import logoIcon from '../../assets/img/logo-icon.png';
 import logoIcon2 from '../../assets/img/logo-icon2.png';
 
 function LoginLayout({ children }) {

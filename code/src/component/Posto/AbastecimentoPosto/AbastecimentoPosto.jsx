@@ -89,6 +89,7 @@ export default function AutorizacaoPosto() {
     const [__openModalPhoto, setOpenModalPhoto] = React.useState(false);
     const [errorInput, setErrorInput] = React.useState(false);
     const [authToken, __setAuthToken] = useState(localStorage.getItem('authToken'));
+    const [disabledInput, setDisabledInput] = React.useState(true);
     /*  const [imagemRedimensionada, setImagemRedimensionada] = useState(null); */
 
     const [alert, setAlert] = useState({
@@ -123,7 +124,8 @@ export default function AutorizacaoPosto() {
         });
     };
 
-    /*  // Função para carregar e redimensionar a imagem
+    /*
+        // Função para carregar e redimensionar a imagem
         const loadAndResizeImage = async () => {
             if (dadosAbastecimento?.imagens.length > 0) {
                 try {
@@ -135,7 +137,8 @@ export default function AutorizacaoPosto() {
                     console.log(dadosAbastecimento.imagens[0])
                 }
             }
-        }; */
+        }; 
+    */ 
 
     const handleValorNegociadoChange = (event) => {
         setValorNegociado(event.target.value);
@@ -222,6 +225,7 @@ export default function AutorizacaoPosto() {
                     typeAlert: 'success',
                     show: true
                 });
+                setDisabledInput(true);
                 setTimeout(() => {
                     setDadosAbastecimento('');
                 }, 5000);
@@ -231,6 +235,7 @@ export default function AutorizacaoPosto() {
             })
             .catch(error => {
                 if (error.message !== 'Unauthorized') {
+                    setDisabledInput(true);
                     setAlert({
                         messageAlert: "Erro ao autorizar abastecimento, tente novamente em instantes ou procure o suporte.",
                         typeAlert: 'error',
@@ -239,6 +244,7 @@ export default function AutorizacaoPosto() {
                 }
             })
             .finally(() => {
+                setDisabledInput(true)
                 setIsLoading(false);
             });
     };
@@ -253,6 +259,7 @@ export default function AutorizacaoPosto() {
                 typeAlert: 'error',
                 show: true,
             });
+            setDisabledInput(true)
             setErrorInput(true)
         }
     };
@@ -263,6 +270,14 @@ export default function AutorizacaoPosto() {
             buscarDadosAbastecimento();
         }
     };
+
+    useEffect(() => {
+        if (valorNegociado === '' || valorNegociado === null || valorNegociado.trim() === '') {
+            setDisabledInput(true);
+        } else {
+            setDisabledInput(false);
+        }
+    }, [valorNegociado]);
 
     /*     useEffect(() => {
             loadAndResizeImage();
@@ -281,6 +296,7 @@ export default function AutorizacaoPosto() {
                     onChange={handleInputChange}
                     onBlur={handleInputBlur}
                     style={{ border: 'none', outline: 'none' }}
+                    maskChar={null}
                 >
                     {() => (
                         <TextField
@@ -426,6 +442,7 @@ export default function AutorizacaoPosto() {
                         color="success"
                         sx={{ height: 40 }}
                         onClick={handleAutorizarClick}
+                        disabled={disabledInput}
                     >
                         {isLoading ? 'Carregando...' : 'Autorizar'}
                     </Button>

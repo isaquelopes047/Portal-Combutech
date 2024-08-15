@@ -10,6 +10,7 @@ import { MdOutlineAttachMoney } from "react-icons/md";
 import { BsFillFuelPumpFill } from "react-icons/bs";
 import { FaHouseChimney } from "react-icons/fa6";
 import { handleUnauthorized } from '../../../hooks/LogOut';
+import { FaRegAddressCard } from "react-icons/fa";
 import PrimatyTable from "../../Tables/PrimatyTable";
 import base from '../../../hooks/BaseUrlApi';
 import OptionsButton from "../../OptionButton";
@@ -20,7 +21,7 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
-
+import Chip from '@mui/material/Chip';
 
 const style = {
     position: 'absolute',
@@ -35,6 +36,7 @@ const style = {
 
 const columns = [
     { id: 'Options', label: `Opções`, minWidth: 100 },
+    { id: 'postocnpj', label: `CNPJ`, minWidth: 100 },
     { id: 'postorazaosocial', label: `Posto`, minWidth: 100 },
     { id: 'produtoid', label: 'Produto solicitado', minWidth: 170 },
     { id: 'produtopostopreconegociado', label: 'Preço solicitado', minWidth: 170 },
@@ -73,6 +75,7 @@ export default function ValoresAprovar() {
     const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
     const [sortedRows, setSortedRows] = useState([]);
     const [dadosOriginais, setDadosOriginais] = useState([]);
+    console.log(dadosOriginais)
     const [selectedRow, setSelectedRow] = useState([]);
     const [countPages, setCountPages] = React.useState(10);
     const [pagina, setPagina] = useState(1);
@@ -126,6 +129,12 @@ export default function ValoresAprovar() {
                 {productMapping[row.produtoid] || row.produtoid}
             </div>
         ),
+        postocnpj: (
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <FaRegAddressCard color="grey" style={{ marginRight: 4 }} />
+                {row.posto.postocnpj}
+            </div>
+        ),
         postorazaosocial: (
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <FaHouseChimney color="grey" style={{ marginRight: 4 }} />
@@ -133,10 +142,11 @@ export default function ValoresAprovar() {
             </div>
         ),
         produtopostopreconegociado: (
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-                <MdOutlineAttachMoney color="green" style={{ marginRight: 4 }} />
-                {productMapping[row.produtopostopreconegociado] || row.produtopostopreconegociado}
-            </div>
+            <Chip style={{ display: 'flex', alignItems: 'center', width: '100px', }} label={<>
+                    <MdOutlineAttachMoney color="green" style={{ marginRight: 4 }} />
+                    {productMapping[row.produtopostopreconegociado] || row.produtopostopreconegociado}
+                </>
+            }/>
         ),
         situacao: (
             <div style={{ pointer: 'not-allowed' }}>
@@ -243,7 +253,29 @@ export default function ValoresAprovar() {
         }
     }, [filtro, dadosOriginais]);
 
-    return (
+    useEffect(() => {
+        if (alert.show) {
+            const timer = setTimeout(() => {
+                setAlert(prevAlert => ({
+                    ...prevAlert,
+                    show: false
+                }));
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [alert.show]);
+
+    return <>
+
+        {alert.show ? (
+            <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
+                <div>
+                    <Alert severity={alert.typeAlert}>{alert.messageAlert}</Alert>
+                    {!alert.messageAlert.startsWith('Erro')}
+                </div>
+            </div>
+        ) : (null)}
+
         <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <OptionsButton titleOption={<FaFilter />}>
@@ -309,25 +341,18 @@ export default function ValoresAprovar() {
                         display: 'flex',
                         gap: '30px',
                     }}>
-                        <button style={{ backgroundColor: '#2169b2', color: '#fff' }} onClick={fetchProdutosPosto}>
+                        <button style={{ backgroundColor: '#2169b2', color: '#fff' }} onClick={() => {
+                            fetchProdutosPosto();
+                            handleClose();
+                        }}>
                             Aprovar
                         </button>
-                        <button onClick={handleClose}> Voltar </button>
+                        <button onClick={handleClose}>Voltar</button>
                     </Box>
-
-                    {alert.show ? (
-                        <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
-                            <div>
-                                <Alert severity={alert.typeAlert}>{alert.messageAlert}</Alert>
-                                {!alert.messageAlert.startsWith('Erro')}
-                            </div>
-                        </div>
-                    ) : (null)}
-
                 </Box>
             </Modal>
         </div>
-    );
+    </>;
 }
 
 const blue = {

@@ -11,7 +11,6 @@ function Login() {
   const [AlertLogin, setAlertLogin] = useState('none');
   const [AlertEmailVerify, setAlertEmailVerify] = useState(false);
 
-  /* Função para retorno de alert de erro */
   const alertErrorLogin = () => {
     setAlertLogin('block')
     setTimeout(() => {

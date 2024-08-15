@@ -14,6 +14,7 @@ import { FaPlusCircle } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 import { FaPencil } from "react-icons/fa6";
 import { handleUnauthorized } from '../../../hooks/LogOut';
+import { FaUserFriends } from "react-icons/fa";
 
 const columns = [
     { id: 'Options', label: `Opções`, minWidth: 100 },
@@ -67,6 +68,16 @@ export default function ListaUsuarios() {
             state: { dados: rowDataWithoutAutorizado }
         });
     };
+
+    const updatedRows = sortedRows.map((row) => ({
+        ...row,
+        nome: (
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <FaUserFriends color="grey" style={{ marginRight: 4 }} />
+                {row.nome || row.nome}
+            </div>
+        ),
+    }));
 
     /* GET dos dados */
     useEffect(() => {
@@ -168,7 +179,7 @@ export default function ListaUsuarios() {
             ) : (
                 <PrimatyTable
                     dadosCollunas={columns}
-                    dadosRows={sortedRows}
+                    dadosRows={updatedRows}
                     rowsLength={sortedRows.length}
                     idChavePrincipal='id'
                     idKey="id"
