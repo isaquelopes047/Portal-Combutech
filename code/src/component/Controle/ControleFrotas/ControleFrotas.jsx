@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MainCardTrava, CardTravaSubMenu, InputEnvio, MainContainer } from './ControleFrotas-style';
 import { handleUnauthorized } from '../../../hooks/LogOut';
+import { Button } from '@mui/material';
 
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -194,11 +195,18 @@ export default function MainControleFrotas() {
                             </div>
                         </CardTravaSubMenu>
                     ))}
-                </CardTrava >
+                </CardTrava>
             </MainContainer>
 
             <InputEnvio>
-                <button onClick={handleSubmit}> Salvar </button>
+                <Button 
+                    variant="contained" 
+                    color="primary" 
+                    onClick={handleSubmit} 
+                    disabled={selectedValidacoes.length === 0}
+                >
+                    Salvar
+                </Button>
             </InputEnvio>
         </div>
     </>

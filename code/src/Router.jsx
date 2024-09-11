@@ -31,6 +31,8 @@ import MainCriarUsuario from "./pages/Usuarios/criarUsuario";
 import AlocacaoVeiculo from "./pages/Controle/Alocacao/AlocacaoVeiculo";
 import CriarAlocacao from "./pages/Controle/Alocacao/CriarAlocacao";
 import PageConstruction from "./pages/InConstrution";
+import MainPrevisaoRoteiro from "./pages/roteiro/PrevisaoRoteiro";
+import MainTermoDeUso from "./pages/TermoDeUso";
 
 const router = createBrowserRouter([
   {
@@ -48,10 +50,6 @@ const router = createBrowserRouter([
       {
         path: "/confirm-password",
         element: <ConfirmPassword />,
-      },
-      {
-        path: "/termodeusoapp",
-        element: <ForgetPassword />,
       },
     ],
   },
@@ -215,6 +213,10 @@ const router = createBrowserRouter([
         path: "relatorios/volumeabastecidas",
         element: <PageConstruction />
       },
+      {
+        path: "relatorios/previsaoderoteiro",
+        element: <MainPrevisaoRoteiro />
+      },
 
       /* BI */
       {
@@ -231,6 +233,10 @@ const router = createBrowserRouter([
   {
     path: "/error-page",
     element: <Error />,
+  },
+  {
+    path: "/termodeusoapp",
+    element: <MainTermoDeUso />,
   },
 ]);
 

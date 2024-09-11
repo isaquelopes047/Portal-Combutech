@@ -82,7 +82,8 @@ const defaultInputsAutoComplete = {
     '& .css-1q60rmi-MuiAutocomplete-endAdornment': { top: 0 },
     '& .MuiAutocomplete-hasPopupIcon.css-6c6kjn-MuiAutocomplete-root, & .MuiOutlinedInput-root, & .MuiAutocomplete-hasClearIcon.css-6c6kjn-MuiAutocomplete-root, & .MuiOutlinedInput-root': { height: '50px' },
     '& .MuiButtonBase-root, & .MuiIconButton-root & .MuiIconButton-sizeMedium & .MuiAutocomplete-popupIndicator & .css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator': { display: 'none' },
-    '& .label.Mui-focused': { marginTop: 50 }
+    '& .label.Mui-focused': { marginTop: 50 },
+    '& .css-1kbl4sy-MuiAutocomplete-root, & .MuiOutlinedInput-root, & .MuiAutocomplete-input': { paddingTop: '10.5px' }
 };
 
 export default function MainAbastecimentoIntegrado() {
@@ -169,7 +170,7 @@ export default function MainAbastecimentoIntegrado() {
                 const authToken = localStorage.getItem('authToken');
                 const __StrictMode = Cookies.get('__StrictMode');
 
-                if (__StrictMode === '0') {
+                if (__StrictMode === 0) {
                     const url = `${base.URL_BASE_API}/Transportadora/BuscaTransportadoras`;
                     const headers = { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' };
                     const response = await fetch(url, {

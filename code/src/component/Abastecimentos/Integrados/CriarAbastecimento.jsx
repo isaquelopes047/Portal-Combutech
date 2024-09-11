@@ -69,7 +69,8 @@ const defaultInputsAutoComplete = {
     '& .css-1q60rmi-MuiAutocomplete-endAdornment': {top: 0},
     '& .MuiAutocomplete-hasPopupIcon.css-6c6kjn-MuiAutocomplete-root, & .MuiOutlinedInput-root, & .MuiAutocomplete-hasClearIcon.css-6c6kjn-MuiAutocomplete-root, & .MuiOutlinedInput-root': {height: '50px'},
     '& .MuiButtonBase-root, & .MuiIconButton-root & .MuiIconButton-sizeMedium & .MuiAutocomplete-popupIndicator & .css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator': {display: 'none'},
-    '& .label.Mui-focused': { marginTop: 50 }
+    '& .label.Mui-focused': { marginTop: 50 },
+    '& .css-1kbl4sy-MuiAutocomplete-root, & .MuiOutlinedInput-root, & .MuiAutocomplete-input': { paddingTop: '10.5px' }
 };
 
 const styleLoad = {

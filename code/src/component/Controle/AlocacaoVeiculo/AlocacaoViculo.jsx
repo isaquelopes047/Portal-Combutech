@@ -154,7 +154,7 @@ export default function MainAlocacaoVeiculo() {
             })
             .then(data => {
                 setAlert({
-                    messageAlert: "Valor alterado com sucesso!",
+                    messageAlert: "Alocação alterada com sucesso!",
                     typeAlert: 'success',
                     show: true
                 });
@@ -163,7 +163,7 @@ export default function MainAlocacaoVeiculo() {
             })
             .catch(error => {
                 setAlert({
-                    messageAlert: "Erro ao autorizado o valor!",
+                    messageAlert: "Erro ao alterar a alocação",
                     typeAlert: 'error',
                     show: true
                 });
@@ -185,6 +185,15 @@ export default function MainAlocacaoVeiculo() {
                 </LinkMenuItem>
             </MenuItem>
         </UtilBar>
+
+        {alert.show ? (
+                    <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
+                        <div>
+                            <Alert severity={alert.typeAlert}>{alert.messageAlert}</Alert>
+                            {!alert.messageAlert.startsWith('Erro')}
+                        </div>
+                    </div>
+        ) : (null)}
 
         <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0' }} data-aos="fade-up">
             {dadosLoading ? (
@@ -231,16 +240,6 @@ export default function MainAlocacaoVeiculo() {
                     <button style={{ backgroundColor: '#9c252b', color: '#fff' }} onClick={() => handleDelete(rowIdToDelete)}> Excluir alocação </button>
                     <button onClick={handleCloseModal}> Voltar </button>
                 </Box>
-
-                {alert.show ? (
-                    <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
-                        <div>
-                            <Alert severity={alert.typeAlert}>{alert.messageAlert}</Alert>
-                            {!alert.messageAlert.startsWith('Erro')}
-                        </div>
-                    </div>
-                ) : (null)}
-
             </Box>
         </Modal>
     </>

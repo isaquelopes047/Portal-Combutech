@@ -415,6 +415,7 @@ export default function AutorizacaoPosto() {
                 <RowForm>
                     <InputMask
                         mask="9.99"
+                        maskChar={null}
                         value={valorNegociado}
                         onChange={handleValorNegociadoChange}
                         onBlur={handleInputBlur}

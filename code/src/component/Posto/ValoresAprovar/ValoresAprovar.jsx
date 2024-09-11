@@ -1,16 +1,4 @@
 import React, { useEffect } from 'react'
-import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
-import { styled } from '@mui/system';
-import { useState } from 'react';
-import { TbEyeSearch } from "react-icons/tb";
-import { FaFilter } from "react-icons/fa";
-import { BiSolidArrowToTop } from "react-icons/bi";
-import { BiSolidArrowFromTop } from "react-icons/bi";
-import { MdOutlineAttachMoney } from "react-icons/md";
-import { BsFillFuelPumpFill } from "react-icons/bs";
-import { FaHouseChimney } from "react-icons/fa6";
-import { handleUnauthorized } from '../../../hooks/LogOut';
-import { FaRegAddressCard } from "react-icons/fa";
 import PrimatyTable from "../../Tables/PrimatyTable";
 import base from '../../../hooks/BaseUrlApi';
 import OptionsButton from "../../OptionButton";
@@ -22,6 +10,18 @@ import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
+import MenuItem from '@mui/material/MenuItem';
+
+import { useState } from 'react';
+import { TbEyeSearch } from "react-icons/tb";
+import { FaFilter } from "react-icons/fa";
+import { BiSolidArrowToTop } from "react-icons/bi";
+import { BiSolidArrowFromTop } from "react-icons/bi";
+import { MdOutlineAttachMoney } from "react-icons/md";
+import { BsFillFuelPumpFill } from "react-icons/bs";
+import { FaHouseChimney } from "react-icons/fa6";
+import { handleUnauthorized } from '../../../hooks/LogOut';
+import { FaRegAddressCard } from "react-icons/fa";
 
 const style = {
     position: 'absolute',
@@ -75,7 +75,6 @@ export default function ValoresAprovar() {
     const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
     const [sortedRows, setSortedRows] = useState([]);
     const [dadosOriginais, setDadosOriginais] = useState([]);
-    console.log(dadosOriginais)
     const [selectedRow, setSelectedRow] = useState([]);
     const [countPages, setCountPages] = React.useState(10);
     const [pagina, setPagina] = useState(1);
@@ -143,10 +142,10 @@ export default function ValoresAprovar() {
         ),
         produtopostopreconegociado: (
             <Chip style={{ display: 'flex', alignItems: 'center', width: '100px', }} label={<>
-                    <MdOutlineAttachMoney color="green" style={{ marginRight: 4 }} />
-                    {productMapping[row.produtopostopreconegociado] || row.produtopostopreconegociado}
-                </>
-            }/>
+                <MdOutlineAttachMoney color="green" style={{ marginRight: 4 }} />
+                {productMapping[row.produtopostopreconegociado] || row.produtopostopreconegociado}
+            </>
+            } />
         ),
         situacao: (
             <div style={{ pointer: 'not-allowed' }}>
@@ -217,7 +216,7 @@ export default function ValoresAprovar() {
                     headers: headers,
                 });
 
-                if(response.status === 401) {
+                if (response.status === 401) {
                     handleUnauthorized();
                     console.log('erro')
                     return;
@@ -276,7 +275,7 @@ export default function ValoresAprovar() {
             </div>
         ) : (null)}
 
-        <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
+        <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <OptionsButton titleOption={<FaFilter />}>
                     <MenuItem onClick={() => sortRows('abastecimentoId')}>
@@ -293,119 +292,65 @@ export default function ValoresAprovar() {
             {dadosLoading ? (
                 <DefautlLoadingTable />
             ) : (
-                <React.Fragment>
-                    <PrimatyTable
-                        dadosCollunas={columns}
-                        dadosRows={updatedRows}
-                        rowsLength={sortedRows.length}
-                        idChavePrincipal='id'
-                        idKey="produtoid"
-                        more={handleAdd}
-                        less={handleReduce}
-                        numberPage={pagina}
-                        quantidadeRegistro={countPages}
-                        handleChange={handleChange}
-                        opcoesSubMenu={(row) => {
-                            return (
-                                <>
-                                    <MenuItem onClick={() => handleOpen(row)} style={{ display: 'flex', alignItems: 'center' }}>
-                                        <TbEyeSearch size={20} />
-                                        Aprovar
-                                    </MenuItem>
-                                </>
-                            );
-                        }}
-                    />
-                </React.Fragment>
+                <PrimatyTable
+                    dadosCollunas={columns}
+                    dadosRows={updatedRows}
+                    rowsLength={sortedRows.length}
+                    idChavePrincipal='id'
+                    idKey="produtoid"
+                    more={handleAdd}
+                    less={handleReduce}
+                    numberPage={pagina}
+                    quantidadeRegistro={countPages}
+                    handleChange={handleChange}
+                    opcoesSubMenu={(rowId) => (
+                        <>
+                            <MenuItem
+                                key={rowId.id}
+                                onClick={() => handleOpen(rowId)}
+                                style={{ display: 'flex', alignItems: 'center' }}
+                            >
+                                <TbEyeSearch size={20} />
+                                Aprovar
+                            </MenuItem>
+                        </>
+                    )}
+                />
             )}
-
-            {/* Modal de aprovação de alteração de valor */}
-            <Modal
-                open={openModalInfo}
-                onClose={handleClose}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-                sx={{ ...defaultInputStyle }}
-            >
-                <Box sx={style}>
-                    <Typography id="modal-modal-title" variant="h6" component="h2">
-                        Aprovar alteração
-                    </Typography>
-                    <Typography id="modal-modal-description" sx={{ mt: 2, fontSize: '12px', padding: '20px 0px', }}>
-                        Ao aprovar a alteração do valor unitário, você estará modificando diretamente o valor negociado com a Combutech. Esta ação é significativa, pois afetará os termos financeiros previamente estabelecidos. Certifique-se de revisar cuidadosamente os novos valores antes de confirmar a alteração para garantir que estejam de acordo com as expectativas e requisitos do contrato. A aprovação desta mudança implicará em um ajuste automático nos registros de negociação, refletindo o novo valor unitário acordado.
-                    </Typography>
-
-                    <Box sx={{
-                        width: '100%',
-                        height: 'auto',
-                        display: 'flex',
-                        gap: '30px',
-                    }}>
-                        <button style={{ backgroundColor: '#2169b2', color: '#fff' }} onClick={() => {
-                            fetchProdutosPosto();
-                            handleClose();
-                        }}>
-                            Aprovar
-                        </button>
-                        <button onClick={handleClose}>Voltar</button>
-                    </Box>
-                </Box>
-            </Modal>
         </div>
+
+        {/* Modal de aprovação de alteração de valor */}
+        <Modal
+            open={openModalInfo}
+            onClose={handleClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+            sx={{ ...defaultInputStyle }}
+        >
+            <Box sx={style}>
+                <Typography id="modal-modal-title" variant="h6" component="h2">
+                    Aprovar alteração
+                </Typography>
+                <Typography id="modal-modal-description" sx={{ mt: 2, fontSize: '12px', padding: '20px 0px', }}>
+                    Ao aprovar a alteração do valor unitário, você estará modificando diretamente o valor negociado com a Combutech. Esta ação é significativa, pois afetará os termos financeiros previamente estabelecidos. Certifique-se de revisar cuidadosamente os novos valores antes de confirmar a alteração para garantir que estejam de acordo com as expectativas e requisitos do contrato. A aprovação desta mudança implicará em um ajuste automático nos registros de negociação, refletindo o novo valor unitário acordado.
+                </Typography>
+
+                <Box sx={{
+                    width: '100%',
+                    height: 'auto',
+                    display: 'flex',
+                    gap: '30px',
+                }}>
+                    <button style={{ backgroundColor: '#2169b2', color: '#fff' }} onClick={() => {
+                        fetchProdutosPosto();
+                        handleClose();
+                    }}>
+                        Aprovar
+                    </button>
+                    <button onClick={handleClose}>Voltar</button>
+                </Box>
+            </Box>
+        </Modal>
     </>;
 }
-
-const blue = {
-    50: '#F0F7FF',
-    100: '#C2E0FF',
-    200: '#99CCF3',
-    300: '#66B2FF',
-    400: '#3399FF',
-    500: '#007FFF',
-    600: '#0072E6',
-    700: '#0059B3',
-    800: '#004C99',
-    900: '#003A75',
-};
-
-const grey = {
-    50: '#F3F6F9',
-    100: '#E5EAF2',
-    200: '#DAE2ED',
-    300: '#C7D0DD',
-    400: '#B0B8C4',
-    500: '#9DA8B7',
-    600: '#6B7A90',
-    700: '#434D5B',
-    800: '#303740',
-    900: '#1C2025',
-};
-
-const MenuItem = styled(BaseMenuItem)(({ theme }) => `
-  list-style: none;
-  padding: 8px;
-  border-radius: 8px;
-  cursor: default;
-  user-select: none;
-
-  &:last-of-type {
-    border-bottom: none;
-  }
-
-  &.${menuItemClasses.focusVisible} {
-    outline: 3px solid ${theme.palette.mode === 'dark' ? blue[600] : blue[200]};
-    background-color: ${theme.palette.mode === 'dark' ? grey[800] : grey[100]};
-    color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
-  }
-
-  &.${menuItemClasses.disabled} {
-    color: ${theme.palette.mode === 'dark' ? grey[700] : grey[400]};
-  }
-
-  &:hover:not(.${menuItemClasses.disabled}) {
-    background-color: ${theme.palette.mode === 'dark' ? blue[900] : blue[50]};
-    color: ${theme.palette.mode === 'dark' ? blue[100] : blue[900]};
-  }
-  `,
-);
 

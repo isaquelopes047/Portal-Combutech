@@ -272,7 +272,7 @@ export default function ValoresNegociados() {
     }, {});
 
     return (
-        <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
+        <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', maxHeight: '100vh'}}>
 
             <div style={{ height: '120px' }}>
                 <Stack spacing={2} sx={{ width: '300px' }}>
