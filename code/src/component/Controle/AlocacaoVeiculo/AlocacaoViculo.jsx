@@ -9,6 +9,7 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import Alert from '@mui/material/Alert';
 import MenuItem from '@mui/material/MenuItem';
+import Cookies from 'js-cookie';
 
 import { LinkMenuItem } from './AlocacaoViculo-style';
 import { GiHamburgerMenu } from "react-icons/gi";
@@ -55,6 +56,7 @@ export default function MainAlocacaoVeiculo() {
     const [countPages, setCountPages] = React.useState(10);
     const [modalOpen, setModalOpen] = useState(false);
     const [rowIdToDelete, setRowIdToDelete] = useState(null);
+    const transportadoraId = Cookies.get('transportadoraId');
     const iconsSize = 25;
     const label = {
         inputProps: {
@@ -187,12 +189,12 @@ export default function MainAlocacaoVeiculo() {
         </UtilBar>
 
         {alert.show ? (
-                    <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
-                        <div>
-                            <Alert severity={alert.typeAlert}>{alert.messageAlert}</Alert>
-                            {!alert.messageAlert.startsWith('Erro')}
-                        </div>
-                    </div>
+            <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
+                <div>
+                    <Alert severity={alert.typeAlert}>{alert.messageAlert}</Alert>
+                    {!alert.messageAlert.startsWith('Erro')}
+                </div>
+            </div>
         ) : (null)}
 
         <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0' }} data-aos="fade-up">

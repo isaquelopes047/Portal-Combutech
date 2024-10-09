@@ -2,10 +2,12 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import bg from "../../assets/img/credential-bg.svg";
 import logoIcon2 from '../../assets/img/logo-icon2.png';
+import CardHomologacao from "../cards/homologacoa";
 
 function LoginLayout({ children }) {
   return (
     <div className="body-bg">
+      <CardHomologacao />
       <section
         className="crancy-wc crancy-wc__full crancy-bg-cover"
         style={{ backgroundImage: `url(${bg})` }}

@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import LoginForm from "../../component/form/LoginForm";
 import { useNavigate } from 'react-router-dom';
-import base from '../../hooks/BaseUrlApi';
 import Cookies from 'js-cookie';
+import base from '../../hooks/BaseUrlApi';
+import LoginForm from "../../component/form/LoginForm";
+import CircularProgress from '@mui/material/CircularProgress';
 
 function Login() {
 
   const navigate = useNavigate();
 
   const [AlertLogin, setAlertLogin] = useState('none');
-  const [AlertEmailVerify, setAlertEmailVerify] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const alertErrorLogin = () => {
     setAlertLogin('block')
@@ -19,6 +20,7 @@ function Login() {
   };
 
   const handleLogin = async ({ email, password }) => {
+    setIsLoading(true);
     try {
       const response = await fetch(`${base.URL_BASE_API}/users/authenticate`, {
         method: 'POST',
@@ -35,6 +37,7 @@ function Login() {
 
       if (response.status === 400 && data.errors && data.errors.includes("Sua conta não esta ativada, verifique a caixa de entrega ou spam do email")) {
         navigate('/confirm-password');
+        setIsLoading(false); // Desativa o estado de carregamento
         return true;
       }
 
@@ -80,12 +83,18 @@ function Login() {
     } catch (error) {
       alertErrorLogin();
       return false;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div>
-      <LoginForm onLogin={handleLogin} AlertError={AlertLogin} />
+      {isLoading ? (
+        <CircularProgress  />
+      ) : (
+        <LoginForm onLogin={handleLogin} AlertError={AlertLogin} />
+      )}
     </div>
   )
 }
