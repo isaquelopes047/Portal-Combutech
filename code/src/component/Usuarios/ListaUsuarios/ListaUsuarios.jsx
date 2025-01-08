@@ -64,7 +64,7 @@ export default function ListaUsuarios() {
         const rowData = sortedRows.find(row => row.id === id);
         const rowDataWithoutAutorizado = { ...rowData };
         delete rowDataWithoutAutorizado.autorizado;
-        navigate(`/auth/usuarios/usuarios/edit/${id}`, {
+        navigate(`/posto/auth/usuarios/usuarios/edit/${id}`, {
             state: { dados: rowDataWithoutAutorizado }
         });
     };

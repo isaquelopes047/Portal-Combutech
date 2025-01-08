@@ -77,7 +77,7 @@ function LoginForm({ onLogin, AlertError }) {
               <label htmlFor="checkbox">Lembrar de mim</label>
             </div>
             <div className="crancy-wc__forgot">
-              <a href="/forget-password" className="forgot-pass">
+              <a href="/posto/forget-password" className="forgot-pass">
                 Esqueceu o login?
               </a>
             </div>

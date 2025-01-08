@@ -12,7 +12,6 @@ import { GoPeople } from "react-icons/go";
 import { CiDeliveryTruck } from "react-icons/ci";
 import { handlePlacaChange, verificarPlaca, handleMotoristaChange, verificarMotorista } from './AlocacaoFunctions/FuncoesUtilitarias';
 
-
 const defaultInputStyle = {
     flex: 1,
     marginTop: 0,

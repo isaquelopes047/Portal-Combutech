@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import profile from "../../assets/img/profile-pic.png";
 import { Link } from "react-router-dom";
 import { handleUnauthorized } from '../../hooks/LogOut';
-
+import logopng from '../../assets/img/logo.png'
 
 function Author({ subNav, setSubNav, title }) {
 
-  const [storedImage, setStoredImage] = useState(localStorage.getItem('img'));
+  const [storedImage, setStoredImage] = useState(localStorage.getItem('img') || logopng);
 
   return (
     <div className="crancy-header__author" onMouseOver={() => setSubNav(title)}>
@@ -109,7 +109,7 @@ function Author({ subNav, setSubNav, title }) {
                 </svg>
               </div>
               <h4 className="crancy-balance-name">
-                <a onClick={handleUnauthorized} href="/">Sair</a>
+                <a onClick={handleUnauthorized} href="/posto/">Sair</a>
               </h4>
             </div>
           </li>

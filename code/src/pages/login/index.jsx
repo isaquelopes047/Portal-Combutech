@@ -36,7 +36,7 @@ function Login() {
       const data = await response.json();
 
       if (response.status === 400 && data.errors && data.errors.includes("Sua conta não esta ativada, verifique a caixa de entrega ou spam do email")) {
-        navigate('/confirm-password');
+        navigate('/posto/confirm-password');
         setIsLoading(false); // Desativa o estado de carregamento
         return true;
       }
@@ -47,6 +47,7 @@ function Login() {
         localStorage.setItem('authToken', data.data.token);
         localStorage.setItem('emailUsuario', data.data.user.nome);
         localStorage.setItem('optionsMenu', modulosString);
+        localStorage.setItem('amountDriverRanking', 10);
 
         const logo = data?.data?.user?.transportadora?.transportadoralogo;
         logo ? localStorage.setItem('img', logo) : null;
@@ -73,7 +74,7 @@ function Login() {
           Cookies.set('__StrictModePosto', 0, { secure: true, sameSite: 'strict' });
         }
 
-        navigate('/auth');
+        navigate('/posto/auth');
         return true;
       }
 

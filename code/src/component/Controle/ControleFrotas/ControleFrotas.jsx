@@ -36,7 +36,7 @@ export default function MainControleFrotas() {
 
     const descricoes = {
         1: 'Restrição em cima da média do caminhão',
-        2: 'Restrição sobre a pacidade maxima do tanque',
+        2: 'Restrição sobre a capacidade maxima do tanque',
         3: 'Trava sobre o maximo a ser abastecido',
     };
 

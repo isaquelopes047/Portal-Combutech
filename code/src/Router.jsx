@@ -16,6 +16,7 @@ import withAuth from "./hooks/TokenValidation";
 import AbastecimentosIntegrados from "./pages/Abastecimentos/Integrados/Integrados";
 import AbastecimentosIntegradosEdit from "./pages/Abastecimentos/Integrados/EditIntegrado";
 import CriarAbastecimento from "./pages/Abastecimentos/Integrados/CriarAbastecimento";
+import CriarAbastecimentoContingenciaMain from "./pages/Abastecimentos/Contingencia/CriarAbastecimento";
 import AbastecimentosNaoIntegrados from "./pages/Abastecimentos/NaoIntegrado/NaoIntegrado";
 import AbastecimentosNaoIntegradosEdit from "./pages/Abastecimentos/NaoIntegrado/EditarNaoIntegrado";
 import CadastrosPostos from "./pages/cadastros/postos/postos";
@@ -36,25 +37,25 @@ import MainTermoDeUso from "./pages/TermoDeUso";
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/posto",
     Component: LoginLayout,
     children: [
       {
-        path: "/",
+        path: "/posto",
         element: <Login />,
       },
       {
-        path: "/forget-password",
+        path: "/posto/forget-password",
         element: <ForgetPassword />,
       },
       {
-        path: "/confirm-password",
+        path: "/posto/confirm-password",
         element: <ConfirmPassword />,
       },
     ],
   },
   {
-    path: "/auth",
+    path: "/posto/auth",
     Component: withAuth(Layout),
     children: [
       {
@@ -162,12 +163,16 @@ const router = createBrowserRouter([
 
       /* Posto */
       {
-        path: "posto/abastecimento",
+        path: "postos/abastecimento",
         element: <AbastecimentoPosto />,
       },
       {
-        path: "posto/valornegociado",
+        path: "postos/valornegociado",
         element: <ValorNegociado />,
+      },
+      {
+        path: "postos/contingencia",
+        element: <CriarAbastecimentoContingenciaMain />
       },
 
       /* Usuario */

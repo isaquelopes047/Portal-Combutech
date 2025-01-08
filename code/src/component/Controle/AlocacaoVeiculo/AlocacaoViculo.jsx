@@ -10,7 +10,6 @@ import Modal from '@mui/material/Modal';
 import Alert from '@mui/material/Alert';
 import MenuItem from '@mui/material/MenuItem';
 import Cookies from 'js-cookie';
-
 import { LinkMenuItem } from './AlocacaoViculo-style';
 import { GiHamburgerMenu } from "react-icons/gi";
 import { FaPlusCircle } from "react-icons/fa";
@@ -19,8 +18,9 @@ import { FaPencil } from "react-icons/fa6";
 const columns = [
     { id: 'Options', label: `Opções`, minWidth: 0 },
     { id: 'motoristanome', label: `Motorista nome`, minWidth: 100 },
-    { id: 'veiculoplaca', label: 'Veículo Placa', minWidth: 150 },
-    { id: 'motoristasituacao', label: 'Situação do motorista', minWidth: 110 },
+    { id: 'motoristacpf', label: `Motorista do CPF`, minWidth: 100 },
+    { id: 'veiculoplaca', label: 'Veículo Placa', minWidth: 100 },
+    { id: 'motoristasituacao', label: 'Situação do motorista', minWidth: 100 },
 ];
 
 const style = {
@@ -77,7 +77,7 @@ export default function MainAlocacaoVeiculo() {
         const buscarDados = async () => {
             try {
                 setDadosLoading(true);
-                const url = `${base.URL_BASE_API}/Veiculo/BuscaAlocacoesVeiculos`;
+                const url = `${base.URL_BASE_API}/Veiculo/BuscaAlocacoesVeiculos/${transportadoraId}`;
                 const authToken = localStorage.getItem('authToken');
 
                 const headers = {
@@ -110,6 +110,7 @@ export default function MainAlocacaoVeiculo() {
     const updatedRows = sortedRows.map((row) => ({
         ...row,
         motoristanome: row.motorista.motoristanome || "Nome não disponível",
+        motoristacpf: row.motorista.motoristacpf || "Nome não disponível",
         veiculoplaca: row.veiculo.veiculoplaca || "Placa não disponível",
         veiculoplaca: row.veiculo.veiculoplaca || "Placa não disponível",
         motoristasituacao: (
@@ -148,28 +149,34 @@ export default function MainAlocacaoVeiculo() {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' }
         })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                setAlert({
-                    messageAlert: "Alocação alterada com sucesso!",
-                    typeAlert: 'success',
-                    show: true
-                });
-                setSortedRows(sortedRows.filter(row => row.veiculoid !== id));
-                setModalOpen(false);
-            })
-            .catch(error => {
-                setAlert({
-                    messageAlert: "Erro ao alterar a alocação",
-                    typeAlert: 'error',
-                    show: true
-                });
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Alerta de sucesso
+            setAlert({
+                messageAlert: "Alocação excluída com sucesso!",
+                typeAlert: 'success',
+                show: true
             });
+            
+            // Remover a linha excluída da tabela sem precisar de refresh
+            setSortedRows((prevRows) => prevRows.filter(row => row.veiculoid !== id));
+            
+            // Fechar modal
+            setModalOpen(false);
+        })
+        .catch(error => {
+            setAlert({
+                messageAlert: "Erro ao excluir a alocação",
+                typeAlert: 'error',
+                show: true
+            });
+            console.error(error);
+        });
     };
 
     return <>

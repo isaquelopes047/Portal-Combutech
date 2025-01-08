@@ -11,17 +11,16 @@ import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
 import MenuItem from '@mui/material/MenuItem';
-
 import { useState } from 'react';
 import { TbEyeSearch } from "react-icons/tb";
 import { FaFilter } from "react-icons/fa";
-import { BiSolidArrowToTop } from "react-icons/bi";
-import { BiSolidArrowFromTop } from "react-icons/bi";
 import { MdOutlineAttachMoney } from "react-icons/md";
 import { BsFillFuelPumpFill } from "react-icons/bs";
 import { FaHouseChimney } from "react-icons/fa6";
 import { handleUnauthorized } from '../../../hooks/LogOut';
 import { FaRegAddressCard } from "react-icons/fa";
+import { FaCheckCircle } from "react-icons/fa";
+import { MdOutlineHourglassTop } from "react-icons/md";
 
 const style = {
     position: 'absolute',
@@ -105,15 +104,6 @@ export default function ValoresAprovar() {
 
     const handleClose = () => { setOpenModalInfo(false) };
 
-    const sortRows = (property) => {
-        const sorted = [...sortedRows].sort((a, b) => {
-            const comparison = a[property] - b[property];
-            return sortOrder === 'asc' ? comparison : -comparison;
-        });
-        setSortedRows(sorted);
-        setSortOrder((prevOrder) => (prevOrder === 'asc' ? 'desc' : 'asc'));
-    };
-
     const handleOpen = (rowData) => {
         setOpenModalInfo(true);
         setSelectedRow(rowData);
@@ -178,7 +168,6 @@ export default function ValoresAprovar() {
 
                 if (response.status == 401) {
                     handleUnauthorized();
-                    console.log('erro')
                     return;
                 };
             })
@@ -188,6 +177,7 @@ export default function ValoresAprovar() {
                     typeAlert: 'success',
                     show: true
                 });
+                setTimeout(() => { window.location.reload() }, 1000);
             })
             .catch(error => {
                 setAlert({
@@ -196,6 +186,16 @@ export default function ValoresAprovar() {
                     show: true
                 });
             });
+    };
+
+    const filterByStatus = (status) => {
+        if (status === 'Aprovado') {
+            const linhasAprovadas = dadosOriginais.filter(row => row.situacao === true);
+            setSortedRows(linhasAprovadas);
+        } else if (status === 'Aguardando') {
+            const linhasAguardando = dadosOriginais.filter(row => row.situacao === false);
+            setSortedRows(linhasAguardando);
+        }
     };
 
     /* GET dos dados */
@@ -218,7 +218,6 @@ export default function ValoresAprovar() {
 
                 if (response.status === 401) {
                     handleUnauthorized();
-                    console.log('erro')
                     return;
                 };
 
@@ -278,13 +277,13 @@ export default function ValoresAprovar() {
         <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <OptionsButton titleOption={<FaFilter />}>
-                    <MenuItem onClick={() => sortRows('abastecimentoId')}>
-                        <BiSolidArrowToTop />
-                        Crescente
+                    <MenuItem onClick={() => filterByStatus('Aprovado')}>
+                        <FaCheckCircle style={{ marginRight: '4px', color: '#5a5a5a' }} />
+                        Aprovado
                     </MenuItem>
-                    <MenuItem onClick={() => sortRows('abastecimentoId')}>
-                        <BiSolidArrowFromTop />
-                        Descrecente
+                    <MenuItem onClick={() => filterByStatus('Aguardando')}>
+                        <MdOutlineHourglassTop style={{ marginRight: '4px', color: '#5a5a5a' }} />
+                        Aguardando
                     </MenuItem>
                 </OptionsButton>
             </div>

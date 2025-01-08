@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 
 const DefaultContainer = {
     width: '100%',
-    height: '600px',
+    height: '500px',
     backgroundColor: '#fff',
     marginTop: '30px',
     borderRadius: '10px',

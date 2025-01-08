@@ -12,7 +12,7 @@ const withAuth = (WrappedComponent) => {
 
             if (!Token) {
                 alert('Faça o login primeiro');
-                navigate("/");
+                navigate("/posto/login");
             } else {
                 try {
                     const response = await fetch(`${base.URL_BASE_API}/Motorista/BuscaMotoristas`, {
@@ -26,10 +26,10 @@ const withAuth = (WrappedComponent) => {
                     if (responseData.statusCode === 200) {
                         // Continue com a navegação se a rota é protegida
                     } else {
-                        navigate('/');
+                        navigate('/posto/login');
                     }
                 } catch (error) {
-                    navigate('/');
+                    navigate('/posto/login');
                 }
             }
         };

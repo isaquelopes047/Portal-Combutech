@@ -15,6 +15,7 @@ const Maincard = styled.div`
         margin-left: 10px;
     }
 `
+
 export default function CardHomologacao(){
     return (
         <Maincard>

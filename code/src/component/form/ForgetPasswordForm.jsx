@@ -28,7 +28,7 @@ function ForgetPasswordForm() {
         {/* <!-- Form Group --> */}
         <div className="form-group">
           <p className="crancy-wc__text">
-            <a href="/">Retornar ao login</a>
+            <a href="/posto">Retornar ao login</a>
           </p>
         </div>
         {/* <!-- Form Group --> */}

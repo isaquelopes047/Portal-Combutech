@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -53,22 +53,21 @@ const DefaultContainer = {
     }
 };
 
-const RankingMotoristas = ({ transportadoraId, dataInicial, dataFinal, quantidadeRegistro }) => {
+const RankingPostos = ({ transportadoraId, dataInicial, dataFinal, quantidadeRegistro }) => {
 
-    const [rankingDrivers, setRankingDrivers] = React.useState([]);
+    const [rankingPostos, setRankingPostos] = React.useState([]);
     const [loading, setLoading] = useState(true);
 
     const downloadExcel = () => {
-        const excelData = rankingDrivers.map((driver) => ({
-            "Motorista Nome": driver.motorista.motoristanome,
-            "CPF": driver.motorista.motoristacpf,
+        const excelData = rankingPostos.map((driver) => ({
+            "Razao social": driver.posto.postorazaosocial,
+            "CNPJ": driver.posto.postocnpj,
             "Litros": driver.litros,
-            "Produto Descrição": driver.produto.produtodescricao,
         }));
 
         const worksheet = XLSX.utils.json_to_sheet(excelData);
         const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'RankingDrivers');
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'rankingPostos');
 
         const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
 
@@ -76,7 +75,7 @@ const RankingMotoristas = ({ transportadoraId, dataInicial, dataFinal, quantidad
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', 'RankingDrivers.xlsx');
+        link.setAttribute('download', 'rankingPostos.xlsx');
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -109,7 +108,7 @@ const RankingMotoristas = ({ transportadoraId, dataInicial, dataFinal, quantidad
             if (!token) return
             setLoading(true);
             try {
-                const response = await fetch(`${base.URL_BASE_API}/Dashboard/BuscaDashboardRankingMotoristasAbastecimentosIntegrados`, {
+                const response = await fetch(`${base.URL_BASE_API}/Dashboard/BuscaDashboardRankingPostosAbastecimentosIntegrados`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -127,14 +126,13 @@ const RankingMotoristas = ({ transportadoraId, dataInicial, dataFinal, quantidad
                 if (!response.ok) throw new Error('Erro ao buscar dados da API');
 
                 const result = await response.json();
-                setRankingDrivers(result.data.ranking)
+                setRankingPostos(result.data.ranking)
 
             } catch (error) {
                 console.error('Erro ao buscar dados:', error);
             } finally {
                 setLoading(false);
             }
-
         };
         fetchData();
     }, [transportadoraId, dataInicial, dataFinal, quantidadeRegistro]);
@@ -142,7 +140,6 @@ const RankingMotoristas = ({ transportadoraId, dataInicial, dataFinal, quantidad
     return (
         <>
             <div style={DefaultContainer}>
-
                 <TableContainer component={Paper} style={{ width: '100%' }}>
 
                     {loading ? (
@@ -151,18 +148,16 @@ const RankingMotoristas = ({ transportadoraId, dataInicial, dataFinal, quantidad
                         </Box>
                     ) : (
                         <Box sx={{ ...DefaultContainer.defaultScroll, height: '400px' }}>
-
-                            <Box
-                                sx={{
-                                    margin: '20px',
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                }}
-                            >
+                            <Box sx={{
+                                margin: '20px',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                            }}>
                                 <Box>
-                                    <Typography>Ranking de Motoristas</Typography>
+                                    <Typography>Ranking de Postos</Typography>
                                 </Box>
+
                                 <IconBox />
                             </Box>
                             <Table sx={{ minWidth: '100%' }} aria-label="ranking de motoristas">
@@ -174,29 +169,21 @@ const RankingMotoristas = ({ transportadoraId, dataInicial, dataFinal, quantidad
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {rankingDrivers.map((row, index) => (
+                                    {rankingPostos.map((row, index) => (
                                         <TableRow key={index} sx={{ fontSize: '13px' }}>
-                                            <TableCell sx={{ fontSize: '13px' }} align="left">
-                                                <GoPersonFill style={{ ...defaultPosition }} />
-                                                {row.motorista.motoristanome}
-                                            </TableCell>
-                                            <TableCell sx={{ fontSize: '13px' }} align="right">{row.motorista.motoristacpf}</TableCell>
-                                            <TableCell sx={{ fontSize: '13px' }} align="right">
-                                                <BsFillFuelPumpFill style={{ ...defaultPosition }} />
-                                                {row.litros}
-                                            </TableCell>
+                                            <TableCell sx={{ fontSize: '13px' }} align="left"><GoPersonFill style={{ ...defaultPosition }} />{row.posto.postorazaosocial}</TableCell>
+                                            <TableCell sx={{ fontSize: '12px' }} align="right">{row.posto.postocnpj}</TableCell>
+                                            <TableCell sx={{ fontSize: '13px' }} align="right"><BsFillFuelPumpFill style={{ ...defaultPosition }} />{row.litros}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
                             </Table>
-
                         </Box>
                     )}
                 </TableContainer>
-
             </div>
         </>
     );
 };
 
-export default RankingMotoristas;
+export default RankingPostos;

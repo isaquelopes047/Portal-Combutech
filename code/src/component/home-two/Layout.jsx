@@ -5,7 +5,7 @@ function Layout({ children }) {
   return (
     <section className="crancy-adashboard crancy-show ">
       <div>
-        <CardHomologacao />
+        {/* <CardHomologacao /> */}
       </div>
       <div className="container">{children}</div>
     </section>

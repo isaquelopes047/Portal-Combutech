@@ -124,22 +124,6 @@ export default function AutorizacaoPosto() {
         });
     };
 
-    /*
-        // Função para carregar e redimensionar a imagem
-        const loadAndResizeImage = async () => {
-            if (dadosAbastecimento?.imagens.length > 0) {
-                try {
-                    const resizedImage = await resizeImage(dadosAbastecimento.imagens[0]);
-                    console.log(resizedImage)
-                    setImagemRedimensionada(resizedImage);
-                } catch (error) {
-                    console.error('Erro ao redimensionar imagem:', error);
-                    console.log(dadosAbastecimento.imagens[0])
-                }
-            }
-        }; 
-    */ 
-
     const handleValorNegociadoChange = (event) => {
         setValorNegociado(event.target.value);
     };
@@ -226,12 +210,9 @@ export default function AutorizacaoPosto() {
                     show: true
                 });
                 setDisabledInput(true);
-                setTimeout(() => {
-                    setDadosAbastecimento('');
-                }, 5000);
-                setTimeout(() => {
-                    location.reload();
-                }, 10000);
+                setDadosAbastecimento('');
+                setNomeMotorista('');
+                setDisabledInput(false);
             })
             .catch(error => {
                 if (error.message !== 'Unauthorized') {
@@ -278,10 +259,6 @@ export default function AutorizacaoPosto() {
             setDisabledInput(false);
         }
     }, [valorNegociado]);
-
-    /*     useEffect(() => {
-            loadAndResizeImage();
-        }, [dadosAbastecimento]); */
 
     return (
         <React.Fragment>
@@ -443,7 +420,7 @@ export default function AutorizacaoPosto() {
                         color="success"
                         sx={{ height: 40 }}
                         onClick={handleAutorizarClick}
-                        disabled={disabledInput}
+                        disabled={false}
                     >
                         {isLoading ? 'Carregando...' : 'Autorizar'}
                     </Button>

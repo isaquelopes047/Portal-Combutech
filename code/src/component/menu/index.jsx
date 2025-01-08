@@ -144,7 +144,7 @@ function Menu({ toggleMenu, menu }) {
           <div className="menu-bar">
             <ul className="menu-bar__one crancy-dashboard-menu" id="CrancyMenu">
               <li>
-                <Link to="/" className="collapsed">
+                <Link to="/posto" className="collapsed">
                   <span className="menu-bar__text">
                     <span className="crancy-menu-icon crancy-svg-icon__v1">
                       <svg

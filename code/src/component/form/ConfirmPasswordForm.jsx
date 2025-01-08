@@ -41,7 +41,7 @@ function ConfirmPasswordForm() {
         <div className="form-group">
           <div className="crancy-wc__button crancy-wc__button--initial">
             <a
-              href="/"
+              href="/posto"
               className="ntfmax-wc__btn ntfmax-wc__btn--login"
             >
               Voltar

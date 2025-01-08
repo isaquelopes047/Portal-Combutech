@@ -1,5 +1,5 @@
 const base = {
-    URL_BASE_API: 'https://api.combutech.com.br/api'
+    URL_BASE_API: 'https://hmg.app.combutech.com.br:6443/api'
 }
 
 //hmg

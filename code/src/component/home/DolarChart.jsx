@@ -1,76 +1,152 @@
-import * as React from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import { Typography } from '@mui/material';
+import base from '../../hooks/BaseUrlApi';
+import React, { useState, useEffect } from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
+import { handleUnauthorized } from '../../hooks/LogOut';
+import { Bar } from 'react-chartjs-2';
 import { Box } from '@mui/system';
 
-function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-};
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+} from 'chart.js';
 
-const rows = [
-    createData('OLEO DIESEL S10', '2.213.798', '12.112.799,96', '5,472'),
-    createData('OLEO DIESEL S500', '1.788,80', '10.272,58', '5,743'),
-    createData('ARLA 32', '6,00', '510,00', '85,000'),
-    createData('ARLA', '842,70', '3.025,17', '3,590'),
-    createData('', '2.216.435,70', '12.126.607,71', '5,471'),
-];
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend
+);
 
-const DefaultContainer = {
-    width: '100%',
-    height: 'auto',
-    backgroundColor: '#fff',
-    marginTop: '30px',
-    borderRadius: '10px',
-    paddingTop: '1px',
+const RankingProdutos = ({ transportadoraId, dataInicial, dataFinal }) => {
+    const [chartData, setChartData] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    titleChart: {
-        marginLeft: '30px',
-        marginTop: '20px',
-    }
-};
+    useEffect(() => {
+        if (!dataInicial || !dataFinal) return;
 
-const RankingProdutos = () => {
+        const fetchData = async () => {
+            const token = localStorage.getItem('authToken');
+            if (!token) return;
+            setLoading(true);
+            try {
+                const response = await fetch(`${base.URL_BASE_API}/Dashboard/BuscaDashboardRankingProdutosAbastecimentosIntegrados`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        periodoInicial: dataInicial,
+                        periodoFinal: dataFinal,
+                        transportadoraId: [transportadoraId],
+                        quantidadePorPagina: 20,
+                        pagina: 1,
+                    }),
+                });
+                
+                if (response.status === 401) {
+                    handleUnauthorized();
+                    return;
+                }
+
+                if (!response.ok) throw new Error('Erro ao buscar dados da API');
+
+
+                const result = await response.json();
+                const rankingData = result?.data?.ranking || [];
+
+                const labels = rankingData.map(item => item?.produto?.produtodescricao || 'Produto desconhecido');
+                const dataLitros = rankingData.map(item => parseFloat(item?.litros || 0));
+
+                setChartData({
+                    labels,
+                    datasets: [
+                        {
+                            label: 'Volume de Litros por Produto',
+                            data: dataLitros,
+                            backgroundColor: '#35949487',
+                            borderColor: '#35949487',
+                            borderWidth: 1,
+                        },
+                    ],
+                });
+            } catch (error) {
+                console.error('Erro ao buscar dados:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [transportadoraId, dataInicial, dataFinal]);
+
     return (
-        <>
-            <div style={DefaultContainer}>
-                <TableContainer component={Paper}>
-                    <Box sx={{ margin: '20px', }}>
-                        <Typography> Ranking de Produtos </Typography>
+        <div style={{
+            width: '100%',
+            height: 'auto',
+            backgroundColor: '#fff',
+            marginTop: '30px',
+        }}>
+            {loading ? (
+                <Box display="flex" justifyContent="center" alignItems="center" height="400px">
+                    <CircularProgress />
+                </Box>
+            ) : (
+                chartData ? (
+                    <div style={{
+                        width: '100%',
+                        height: '490px',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        padding: '15px 0',
+                    }}>
+                        <Bar
+                            style={{ margin: '30px 0' }}
+                            data={chartData}
+                            options={{
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        position: 'top',
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Ranking de Produtos - Volume em Litros',
+                                    },
+                                },
+                                scales: {
+                                    x: {
+                                        title: {
+                                            display: true,
+                                            text: 'Produtos'
+                                        }
+                                    },
+                                    y: {
+                                        title: {
+                                            display: true,
+                                            text: 'Volume em Litros'
+                                        },
+                                        beginAtZero: true
+                                    }
+                                }
+                            }}
+                        />
+                    </div>
+                ) : (
+                    <Box display="flex" justifyContent="center" alignItems="center" height="400px">
+                        <p>Dados indisponíveis para exibição do gráfico.</p>
                     </Box>
-                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Produtos</TableCell>
-                                <TableCell align="right">Volume (L)</TableCell>
-                                <TableCell align="right">Custo Total (R$)</TableCell>
-                                <TableCell align="right">Preço Médio/L</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {rows.map((row) => (
-                                <TableRow
-                                    key={row.name}
-                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                >
-                                    <TableCell component="th" scope="row">
-                                        {row.name}
-                                    </TableCell>
-                                    <TableCell align="right">{row.calories}</TableCell>
-                                    <TableCell align="right">{row.fat}</TableCell>
-                                    <TableCell align="right">{row.carbs}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </div>
-        </>
+                )
+            )}
+        </div>
     );
 };
 

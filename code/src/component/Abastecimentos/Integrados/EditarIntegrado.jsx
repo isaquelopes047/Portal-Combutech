@@ -12,6 +12,8 @@ import Button from '@mui/material/Button';
 import moment from 'moment';
 import 'moment/locale/pt-br';
 import 'dayjs/locale/en-gb';
+import PhotoAbastecimento from './photoAbastecimento';
+import base from '../../../hooks/BaseUrlApi';
 
 const RowForm = styled.div`
     width: 100%;
@@ -54,6 +56,7 @@ const defaultInputStyle = {
 export default function EditarIntegrado() {
     const location = useLocation();
     const [dadosItemParam, setDadosItemParam] = React.useState(null);
+    const [imgAbastecimento, setImgAbastecimento] = React.useState([]);
     const [dadosFormulario, setDadosFormulario] = React.useState({
         abastecimentoDateTime: null,
         veiculoPlaca: '',
@@ -99,6 +102,39 @@ export default function EditarIntegrado() {
                 abastecimentoInconsistencias: dadosItemParam.abastecimentoInconsistencias || ''
             });
         }
+    }, [dadosItemParam]);
+
+    useEffect(() => {
+        const fetchAbastecimento = async () => {
+            const authToken = localStorage.getItem('authToken');
+            const headers = { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' };
+
+            if (!authToken) {
+                setLoading(false); setError("Token de autenticação não disponível");
+                return;
+            }
+
+            if (!dadosItemParam || !dadosItemParam.abastecimentoId) {
+                setLoading(false);
+                setError("ID de abastecimento não disponível");
+                return;
+            }
+
+            const url = `${base.URL_BASE_API}/Motorista/BuscaAbastecimentoMotoristaPorIdAbastecimentoIntegrado/${dadosItemParam.abastecimentoId}`;
+
+            try {
+                const response = await fetch(url, { method: 'GET', headers });
+                if (!response.ok) { throw new Error(`Erro ao buscar abastecimento: ${response.status}`) }
+                const data = await response.json();
+                setImgAbastecimento(data.data)
+            } catch (error) {
+                setError(`Erro na requisição: ${error.message}`);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchAbastecimento();
     }, [dadosItemParam]);
 
     /* TRATA AS INCONSISTENCIAS DO REGISTROS */
@@ -266,6 +302,9 @@ export default function EditarIntegrado() {
                     onChange={(event) => handleChange('media', event.target.value)}
                     sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
                 />
+                <div>
+                    <PhotoAbastecimento imagemUrl={imgAbastecimento?.imagem} />
+                </div>
             </RowForm>
         </div>
 

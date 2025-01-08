@@ -66,8 +66,10 @@ const produtos = [
     { produtoid: 12, produtodescricao: "ARLA BALDE 20LTS" }
 ];
 
+
 const columns = [
     { id: 'produtoid', label: `Produto` },
+    { id: 'produtopostocodigointerno', label: `Codigo interno` },
     { id: 'produtopostopreconegociado', label: 'Valor Atual' },
     { id: 'alterar', label: 'Negociar' },
 ];
@@ -133,7 +135,7 @@ export default function ValoresNegociados() {
                 if (!authToken) {
                     throw new Error('Token de autenticação não encontrado');
                 }
-                const url = `${base.URL_BASE_API}/Transportadora/BuscaTransportadoras`;
+                const url = `${base.URL_BASE_API}/Transportadora/BuscaTransportadorasValorNegociado`;
                 const headers = { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' };
                 const response = await fetch(url, {
                     method: 'GET',
@@ -187,6 +189,7 @@ export default function ValoresNegociados() {
     const pesquisarPorCnpj = (cnpj) => {
         const postoEncontrado = produtoPosto.find(posto => posto.postocnpj.trim() === cnpj.trim());
         if (postoEncontrado) {
+            console.log(postoEncontrado.produtosPosto)
             setResultado(postoEncontrado.produtosPosto);
         } else {
             setResultado(null);
@@ -275,7 +278,7 @@ export default function ValoresNegociados() {
         <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', maxHeight: '100vh'}}>
 
             <div style={{ height: '120px' }}>
-                <Stack spacing={2} sx={{ width: '300px' }}>
+                <Stack spacing={2} sx={{ width: '400px' }}>
                     <Autocomplete
                         sx={{ ...defaultInputStyle, ...defaultInputsAutoComplete }}
                         options={transportadorasDados.map((option) => option.transportadorarazaosocial)}
@@ -316,10 +319,11 @@ export default function ValoresNegociados() {
                         <TableBody>
                                 {resultado && resultado.length > 0 ? (
                                     resultado.map((row) => (
-                                        <TableRow key={row.produtoid}>
+                                        <TableRow key={row.produtoid} style={{ height: '39px', }}>
                                             <TableCell component="th" scope="row">
                                                 {produtoMap[row.produtoid] || "Descrição não encontrada"}
                                             </TableCell>
+                                            <TableCell align="left">{row.produtopostocodigointerno}</TableCell>
                                             <TableCell align="left">R$ {row.produtopostopreconegociado}</TableCell>
                                             <TableCell align="left" onClick={() => handleOpen(row)}>
                                                 <div>
