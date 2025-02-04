@@ -10,7 +10,7 @@ function Author({ subNav, setSubNav, title }) {
 
   return (
     <div className="crancy-header__author" onMouseOver={() => setSubNav(title)}>
-      <Link to="/auth/usuario" className="crancy-header__author" onMouseOver={() => setSubNav(title)}>
+      <Link to="postos/usuario" className="crancy-header__author" onMouseOver={() => setSubNav(title)}>
         <svg
           className="crancy-header__svg--icon"
           width="200"
@@ -59,7 +59,7 @@ function Author({ subNav, setSubNav, title }) {
                 </svg>
               </div>
               <h4 className="crancy-balance-name">
-                <Link to="usuario">Meus dados</Link>
+                <Link to="postos/usuario">Meus dados</Link>
               </h4>
             </div>
           </li>

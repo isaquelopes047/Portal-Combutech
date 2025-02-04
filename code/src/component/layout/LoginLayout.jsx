@@ -7,7 +7,7 @@ import CardHomologacao from "../cards/homologacoa";
 function LoginLayout({ children }) {
   return (
     <div className="body-bg">
-      <CardHomologacao />
+      
       <section
         className="crancy-wc crancy-wc__full crancy-bg-cover"
         style={{ backgroundImage: `url(${bg})` }}

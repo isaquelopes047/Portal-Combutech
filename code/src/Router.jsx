@@ -63,7 +63,7 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: "usuario",
+        path: "postos/usuario",
         element: <Usuario />,
       },
       {
@@ -240,7 +240,7 @@ const router = createBrowserRouter([
     element: <Error />,
   },
   {
-    path: "/termodeusoapp",
+    path: "/posto/termodeusoapp",
     element: <MainTermoDeUso />,
   },
 ]);

@@ -76,7 +76,7 @@ function Header({ toggleMenu, menu }) {
                         <div className="crancy-header__options">
                           <div className="crancy-header__settings">
                             <button id="crancy-header__settings">
-                              <Link to="/auth/usuario">
+                              <Link to="postos/usuario">
                                 <svg
                                   className="crancy-header__svg--icon"
                                   width="24"

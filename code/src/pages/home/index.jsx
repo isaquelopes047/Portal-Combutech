@@ -17,6 +17,7 @@ function Home() {
   const transportadoraId = String(Cookies.get('transportadoraId'));
   const StrickPosto = Cookies.get('__StrictModePosto');
   const [amountAdriver, setAmountAdriver] = useState(localStorage.getItem('amountDriverRanking'));
+  const [nomeRazao, setNomeRazao] = useState(localStorage.getItem('razaoNome'))
   const [startDate, setStartDate] = useState(localStorage.getItem('startDate'));
   const [endDate, setEndDate] = useState(localStorage.getItem('endDate'));
 
@@ -44,11 +45,16 @@ function Home() {
       <BodyWrapper>
         {StrickPosto == 1 ? (
           <div style={{ marginTop: '70px', padding: '30px', }}>
-            <h1 className="welcome-title">Bem-vindo, Posto!</h1>
+            <h1 className="welcome-title">Bem vindo, {nomeRazao}</h1>
 
             <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
               <p className="welcome-message">Estamos felizes em tê-lo aqui.</p>
               <p className="welcome-message">Duvidas sobre algum procedimento? entre em contato com a Combutech em nosso canais de atendimento</p>
+            </div>
+
+            <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
+              <p className="welcome-message" style={{fontSize: '13px',}}>Ultima atualização 28/01/2025 - 13:53</p>
+              <p className="welcome-message" style={{fontSize: '13px',}}>V 7.12.3</p>
             </div>
           </div>
         ) : (

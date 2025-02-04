@@ -18,7 +18,7 @@ export default function TermoDeUso() {
 
                 <div>
                     <p>
-                        Caso tenha dúvidas ou precise de mais informações sobre o uso do aplicativo, não hesite em entrar em contato com nossa equipe de suporte. Estamos disponíveis para ajudar através do e-mail suporte@combutech.com ou pelo telefone (11) 1234-5678.
+                        Caso tenha dúvidas ou precise de mais informações sobre o uso do aplicativo, não hesite em entrar em contato com nossa equipe de suporte. Estamos disponíveis para ajudar através do e-mail suporte@combutech.com ou pelo telefone (47) 1234-5678.
                     </p>
                 </div>
             </HeaderPage>

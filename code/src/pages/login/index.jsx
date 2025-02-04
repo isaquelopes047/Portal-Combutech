@@ -46,6 +46,7 @@ function Login() {
 
         localStorage.setItem('authToken', data.data.token);
         localStorage.setItem('emailUsuario', data.data.user.nome);
+        localStorage.setItem('razaoNome', data.data.user.posto.postonomefantasia);
         localStorage.setItem('optionsMenu', modulosString);
         localStorage.setItem('amountDriverRanking', 10);
 

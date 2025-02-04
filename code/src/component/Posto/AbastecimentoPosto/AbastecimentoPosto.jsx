@@ -83,8 +83,10 @@ export default function AutorizacaoPosto() {
     const [valorNegociado, setValorNegociado] = useState('');
     const [inputValue, setInputValue] = useState('');
     const [dadosAbastecimento, setDadosAbastecimento] = useState({});
+    console.log(dadosAbastecimento)
     const [isLoading, setIsLoading] = useState(false);
-    const [nomeMotorista, setNomeMotorista] = useState('');
+    const [nomeMotorista, setNomeMotorista] = useState({});
+    console.log(nomeMotorista)
     const [openModalInfo, setOpenModalInfo] = React.useState(false);
     const [__openModalPhoto, setOpenModalPhoto] = React.useState(false);
     const [errorInput, setErrorInput] = React.useState(false);
@@ -171,7 +173,7 @@ export default function AutorizacaoPosto() {
                 setDadosAbastecimento(data.data);
                 const responseMotorista = await fetch(`${base.URL_BASE_API}/Motorista/BuscaMotorista/${data.data.motoristaid}`, requestOptions);
                 const dataMotorista = await responseMotorista.json();
-                setNomeMotorista(dataMotorista.data.motoristanome);
+                setNomeMotorista(dataMotorista.data);
                 setAlert({ show: false });
 
             }
@@ -211,7 +213,7 @@ export default function AutorizacaoPosto() {
                 });
                 setDisabledInput(true);
                 setDadosAbastecimento('');
-                setNomeMotorista('');
+                setNomeMotorista({});
                 setDisabledInput(false);
             })
             .catch(error => {
@@ -250,6 +252,20 @@ export default function AutorizacaoPosto() {
         if (inputValue) {
             buscarDadosAbastecimento();
         }
+    };
+
+    const formatarData = (dataString) => {
+        if (!dataString) return 'Data do abastecimento';
+
+        const data = new Date(dataString);
+
+        const dia = String(data.getDate()).padStart(2, '0');
+        const mes = String(data.getMonth() + 1).padStart(2, '0');
+        const ano = data.getFullYear(); // aaaa
+        const horas = String(data.getHours()).padStart(2, '0');
+        const minutos = String(data.getMinutes()).padStart(2, '0');
+
+        return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
     };
 
     useEffect(() => {
@@ -309,9 +325,29 @@ export default function AutorizacaoPosto() {
                 <RowForm>
                     <TextField
                         disabled
+                        label="Data do abastecimento"
+                        name="data"
+                        value={formatarData(dadosAbastecimento?.data) ?? 'Data de abastecimento'}
+                        inputProps={{ style: { paddingLeft: '10px' } }}
+                        sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
+                    />
+                </RowForm>
+
+                <RowForm>
+                    <TextField
+                        disabled
                         label="Nome do motorista"
                         name="kmAnterios"
-                        value={nomeMotorista}
+                        value={nomeMotorista?.motoristanome ?? 'Nome do motorista'}
+                        inputProps={{ style: { paddingLeft: '10px' } }}
+                        sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
+                    />
+
+                    <TextField
+                        disabled
+                        label="Motorista CPF"
+                        name="CPF"
+                        value={nomeMotorista?.motoristacpf ?? 'Motorista CPF'}
                         inputProps={{ style: { paddingLeft: '10px' } }}
                         sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
                     />
@@ -358,9 +394,10 @@ export default function AutorizacaoPosto() {
                 <RowForm>
                     <TextField
                         disabled
-                        label="Placa caminhão"
+                        label="Placa veículo"
                         name="placaCaminhao"
                         inputProps={{ style: { paddingLeft: '10px' } }}
+                        value={nomeMotorista?.veiculo?.veiculoplaca ?? 'Placa do veículo'}
                         sx={{ ...defaultInputStyle, paddingX: 1, '& label.Mui-focused': { marginLeft: 1 } }}
                     />
                     <TextField
@@ -388,7 +425,7 @@ export default function AutorizacaoPosto() {
             </div>
 
             <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0' }}>
-                <Typography sx={{ marginLeft: '-12px', marginBottom: '10px' }}>Informe o valor unitario negociado</Typography>
+                <Typography sx={{ marginLeft: '-12px', marginBottom: '10px' }}>Informe o valor unitário negociado.</Typography>
                 <RowForm>
                     <InputMask
                         mask="9.99"

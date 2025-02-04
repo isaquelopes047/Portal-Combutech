@@ -179,13 +179,13 @@ export default function ValoresNegociados() {
         };
         fetchProdutosPosto();
     }, [transportadoraId]);
-    
+
     useEffect(() => {
         if (produtoPosto.length > 0) {
             pesquisarPorCnpj(cnpj);
         }
     }, [produtoPosto]);
-    
+
     const pesquisarPorCnpj = (cnpj) => {
         const postoEncontrado = produtoPosto.find(posto => posto.postocnpj.trim() === cnpj.trim());
         if (postoEncontrado) {
@@ -206,11 +206,8 @@ export default function ValoresNegociados() {
 
     const handleAutocompleteChange = (event, value) => {
         if (value) {
-            const transportadoraSelecionada = transportadorasDados.find(transportadora => transportadora.transportadorarazaosocial === value);
-            if (transportadoraSelecionada) {
-                const idSelecionado = transportadoraSelecionada.transportadoraid;
-                setTransportadoraId(idSelecionado);
-            }
+            const idSelecionado = value.transportadoraid;
+            setTransportadoraId(idSelecionado);
         }
     };
 
@@ -275,19 +272,30 @@ export default function ValoresNegociados() {
     }, {});
 
     return (
-        <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', maxHeight: '100vh'}}>
+        <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', maxHeight: '100vh' }}>
 
             <div style={{ height: '120px' }}>
                 <Stack spacing={2} sx={{ width: '400px' }}>
                     <Autocomplete
                         sx={{ ...defaultInputStyle, ...defaultInputsAutoComplete }}
-                        options={transportadorasDados.map((option) => option.transportadorarazaosocial)}
+                        options={transportadorasDados}
+                        getOptionLabel={(option) => option.transportadoranomefantasia}
                         onChange={handleAutocompleteChange}
+                        renderOption={(props, option) => (
+                            <li {...props} style={{ display: "flex", justifyContent: 'flex-start', alignItems: 'flex-start', flexDirection: "column" }}>
+                                <span style={{ fontSize: "16px", fontWeight: "bold" }}>
+                                    {option.transportadoranomefantasia}
+                                </span>
+                                <span style={{ fontSize: "12px", fontWeight: "600", color: "gray" }}>
+                                    {option.transportadoracnpj}
+                                </span>
+                            </li>
+                        )}
                         renderInput={(params) => (
                             <TextField
                                 {...params}
                                 label="Pesquisar transportadoras"
-                                sx={{ fontSize: '10px', }}
+                                sx={{ fontSize: '10px' }}
                                 InputProps={{
                                     ...params.InputProps,
                                     type: 'search',
@@ -317,26 +325,26 @@ export default function ValoresNegociados() {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                                {resultado && resultado.length > 0 ? (
-                                    resultado.map((row) => (
-                                        <TableRow key={row.produtoid} style={{ height: '39px', }}>
-                                            <TableCell component="th" scope="row">
-                                                {produtoMap[row.produtoid] || "Descrição não encontrada"}
-                                            </TableCell>
-                                            <TableCell align="left">{row.produtopostocodigointerno}</TableCell>
-                                            <TableCell align="left">R$ {row.produtopostopreconegociado}</TableCell>
-                                            <TableCell align="left" onClick={() => handleOpen(row)}>
-                                                <div>
-                                                    <EditContainer onClick={() => handleOpen(row)} />
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                ) : (
-                                    <TableRow>
-                                        <TableCell colSpan={3}>Nenhum produto encontrado</TableCell>
+                            {resultado && resultado.length > 0 ? (
+                                resultado.map((row) => (
+                                    <TableRow key={row.produtoid} style={{ height: '39px', }}>
+                                        <TableCell component="th" scope="row">
+                                            {produtoMap[row.produtoid] || "Descrição não encontrada"}
+                                        </TableCell>
+                                        <TableCell align="left">{row.produtopostocodigointerno}</TableCell>
+                                        <TableCell align="left">R$ {row.produtopostopreconegociado}</TableCell>
+                                        <TableCell align="left" onClick={() => handleOpen(row)}>
+                                            <div>
+                                                <EditContainer onClick={() => handleOpen(row)} />
+                                            </div>
+                                        </TableCell>
                                     </TableRow>
-                                )}
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={3}>Nenhum produto encontrado, entre em contato com a Transportadora caso de problemas</TableCell>
+                                </TableRow>
+                            )}
                         </TableBody>
                     </Table>
                 </TableContainer>
@@ -349,7 +357,7 @@ export default function ValoresNegociados() {
                 onClose={handleClose}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
-                sx={{ ...defaultInputsAutoComplete, ...defaultInputStyle,  marginTop: '400px' }}
+                sx={{ ...defaultInputsAutoComplete, ...defaultInputStyle, marginTop: '400px' }}
             >
                 <Box sx={style}>
 

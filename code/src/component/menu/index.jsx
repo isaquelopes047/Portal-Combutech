@@ -49,7 +49,7 @@ function Menu({ toggleMenu, menu }) {
       <div className={`admin-menu ${dropdown ? "no-overflow" : ""}`}>
         {/* <!-- Logo --> */}
         <div className="logo crancy-sidebar-padding pd-right-0">
-          <Link className="crancy-logo" to="/">
+          <Link className="crancy-logo" to="/posto/auth">
             {/* <!-- Logo for Default --> */}
             <img className="crancy-logo__main" src={logo} alt="#" />
             <img className="crancy-logo__main--dark" src={logoWhite} alt="#" />
