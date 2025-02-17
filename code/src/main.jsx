@@ -10,7 +10,7 @@ import "./assets/js/main.js";
 import "react-daypicker/lib/DayPicker.css";
 
 import AOS from 'aos';
-import 'aos/dist/aos.css';
+import 'aos/dist/aos.css';a
 
 AOS.init();
 
