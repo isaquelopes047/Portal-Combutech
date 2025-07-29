@@ -66,7 +66,6 @@ const produtos = [
     { produtoid: 12, produtodescricao: "ARLA BALDE 20LTS" }
 ];
 
-
 const columns = [
     { id: 'produtoid', label: `Produto` },
     { id: 'produtopostocodigointerno', label: `Codigo interno` },
@@ -103,6 +102,7 @@ const defaultInputsAutoComplete = {
 export default function ValoresNegociados() {
 
     const [cnpj, setCnpj] = useState(localStorage.getItem('emailUsuario'));
+    const [idposto, setIdPosto] = useState(localStorage.getItem('postoid'));
     const [resultado, setResultado] = useState(null);
     const [open, setOpen] = React.useState(false);
     const [transportadorasDados, setTransportadorasDados] = useState([]);
@@ -111,6 +111,7 @@ export default function ValoresNegociados() {
     const [dadosLoading, setDadosLoading] = useState(true);
     const [authToken, setAuthToken] = useState(localStorage.getItem('authToken'));
     const [transportadoraId, setTransportadoraId] = useState(0);
+    const [cnpjPosto, setCnpjPosto] = useState(localStorage.getItem('emailUsuario').trim());
     const [formularioEnvio, setFormularioEnvio] = useState({
         observacao: "",
         idProduto: null,
@@ -159,8 +160,7 @@ export default function ValoresNegociados() {
 
             try {
                 const requestOptions = { method: 'GET', headers: { 'Authorization': `Bearer ${authToken}`, 'Content-Type': 'application/json' } };
-                const response = await fetch(`${base.URL_BASE_API}/Posto/BuscaPostosPorTransportadora/${transportadoraId}`, requestOptions);
-
+                const response = await fetch(`${base.URL_BASE_API}/Posto/BuscaProdutosPostoPorCNPJ/${cnpjPosto.replaceAll('/', '%2F')}/${transportadoraId}`, requestOptions);
                 if (response.status == 401) {
                     handleUnauthorized();
                     return;
@@ -171,7 +171,7 @@ export default function ValoresNegociados() {
                 };
 
                 const data = await response.json();
-                setProdutoPosto(data.data);
+                setResultado(data.data);
             } catch (error) {
                 console.error('Fetch error:', error);
             }
@@ -179,22 +179,6 @@ export default function ValoresNegociados() {
         };
         fetchProdutosPosto();
     }, [transportadoraId]);
-
-    useEffect(() => {
-        if (produtoPosto.length > 0) {
-            pesquisarPorCnpj(cnpj);
-        }
-    }, [produtoPosto]);
-
-    const pesquisarPorCnpj = (cnpj) => {
-        const postoEncontrado = produtoPosto.find(posto => posto.postocnpj.trim() === cnpj.trim());
-        if (postoEncontrado) {
-            console.log(postoEncontrado.produtosPosto)
-            setResultado(postoEncontrado.produtosPosto);
-        } else {
-            setResultado(null);
-        }
-    };
 
     const handleChangeForNumber = (valor) => {
         setCurrentPrecoNegociado(valor);

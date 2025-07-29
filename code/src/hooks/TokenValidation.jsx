@@ -12,7 +12,7 @@ const withAuth = (WrappedComponent) => {
 
             if (!Token) {
                 alert('Faça o login primeiro');
-                navigate("/posto/login");
+                navigate("/posto");
             } else {
                 try {
                     const response = await fetch(`${base.URL_BASE_API}/Motorista/BuscaMotoristas`, {

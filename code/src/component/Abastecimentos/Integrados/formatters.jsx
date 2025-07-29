@@ -10,6 +10,11 @@ export const formatNumberForKm = (value) => {
     return formattedValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 };
 
+export const normalNumber = (value) => {
+    const valueNormal = value
+    return valueNormal
+};
+
 /* 009.999.999,999 */
 export const formatNumberForLitros = (value) => {
     // Remove todos os caracteres que não são dígitos

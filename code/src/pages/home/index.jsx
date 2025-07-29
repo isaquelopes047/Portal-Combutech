@@ -49,12 +49,12 @@ function Home() {
 
             <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
               <p className="welcome-message">Estamos felizes em tê-lo aqui.</p>
-              <p className="welcome-message">Duvidas sobre algum procedimento? entre em contato com a Combutech em nosso canais de atendimento</p>
+              <p className="welcome-message">Dúvidas sobre algum procedimento? Entre em contato com a Combutech em nossos canais de atendimento.</p>
             </div>
 
             <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
-              <p className="welcome-message" style={{fontSize: '13px',}}>Ultima atualização 28/01/2025 - 13:53</p>
-              <p className="welcome-message" style={{fontSize: '13px',}}>V 7.12.3</p>
+              <p className="welcome-message" style={{fontSize: '13px',}}>Ultima atualização 19/07/2025</p>
+              <p className="welcome-message" style={{fontSize: '13px',}}>V 1.15.0</p>
             </div>
           </div>
         ) : (

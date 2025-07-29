@@ -6,14 +6,11 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import base from '../../../hooks/BaseUrlApi';
-import Cookies from 'js-cookie';
 import 'moment/locale/pt-br';
 
 import { handleUnauthorized } from '../../../hooks/LogOut';
 import { Autocomplete } from '@mui/material';
-import { formatNumberForKm, formatNumberForLitros } from '../Integrados/formatters'
-import { handlePlacaChange, verificarPlaca } from '../Integrados/funcoesUtilitarias/PlacaVeiculo';
-import { handleMotoristaChange, verificarMotorista } from '../Integrados/funcoesUtilitarias/Motorista';
+import { formatNumberForKm, formatNumberForLitros, normalNumber } from '../Integrados/formatters'
 import { handleProdutosChange, verificarProdutos } from './Produtos';
 
 const RowForm = styled.div`
@@ -80,19 +77,18 @@ const styleLoad = {
 export default function CriarAbastecimentoContingencia() {
     const [errors, setErrors] = useState({ numeroDocumento: false, quilometragem: false, litros: false, valorUnitario: false, });
     const [idPosto, setIdPostos] = useState(localStorage.getItem('postoid'));
+
+    const [cpfmotorista, setCpfMotorista] = useState('');
+    const [dadosMotorista, setDadosMotorista] = useState({});
+    
+
     const [fieldClicked, setFieldClicked] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [placasVeiculo, setPlacasVeiculo] = useState([]);
-    const [motoristas, setMotoristas] = useState([]);
     const [produtos, setProdutos] = useState([]);
     const [produtosPortal, setProdutosPortal] = useState([]);
-    const [placaDigitada, setPlacaDigitada] = useState('');
-    const [motoristaDigitado, setMotoristaDigitado] = useState('');
     const [produtosDigitado, setProdutosDigitado] = useState('');
-    const [veiculoEncontrado, setVeiculoEncontrado] = useState(null);
-    const [motoristaEncontrado, setMotoristaEncontrado] = useState(null);
     const [produtosEncontrado, setProdutosEncontrados] = useState(null);
-    const transportadoraId = Cookies.get('transportadoraId');
+    const [produtosComplementares, setProdutosComplementares] = useState(null);
     const [dadosFormulario, setDadosFormulario] = React.useState({
         idVeiculo: '',
         idMotorista: '',
@@ -101,7 +97,9 @@ export default function CriarAbastecimentoContingencia() {
         quilometragem: '',
         litros: '',
         imagem: '',
-        motivo: ''
+        motivo: '',
+        idProdutoArlaPosto: null,
+        litrosArla: null
     })
     const [alert, setAlert] = useState({
         messageAlert: '',
@@ -109,7 +107,6 @@ export default function CriarAbastecimentoContingencia() {
         show: false
     });
 
-    /* Função callback de get dos dados */
     const GetApiDados = async (UrlRequest, callback) => {
         const authToken = localStorage.getItem('authToken');
         const headers = {
@@ -119,39 +116,37 @@ export default function CriarAbastecimentoContingencia() {
         setLoading(true);
         try {
             const resposta = await fetch(`${base.URL_BASE_API}${UrlRequest}`, { method: 'GET', headers });
-    
+
             if (resposta.status === 401) {
                 handleUnauthorized();
-                setLoading(false); // Desativa o loading em caso de erro
+                setLoading(false);
                 return;
             }
-    
+
             const dados = await resposta.json();
             callback(dados.data || []);
         } catch (erro) {
             console.error('Erro ao carregar placas da API:', erro);
         } finally {
-            setLoading(false); // Desativa o loading após a requisição
+            setLoading(false);
         }
     };
 
     useEffect(() => {
-        GetApiDados(`/Veiculo/BuscaVeiculosPorTransportadora/${transportadoraId}`, (dados) => {
-            setPlacasVeiculo(dados);
-        });
-
-        GetApiDados(`/Motorista/BuscaMotoristasPorTransportadora/${transportadoraId}`, (dados) => {
-            setMotoristas(dados);
-        });
-
-        GetApiDados(`/Posto/BuscaProdutosPosto/${idPosto}`, (dados) => {
-            setProdutos(dados);
-        });
-
         GetApiDados(`/Produto/BuscaProdutos`, (dados) => {
             setProdutosPortal(dados);
         });
     }, []);
+
+    useEffect(() => {
+        if (dadosMotorista.motorista?.motoristatransportadoraid) {
+            const transportadoraId = dadosMotorista.motorista.motoristatransportadoraid;
+
+            GetApiDados(`/Posto/BuscaProdutosPosto/${idPosto}/${transportadoraId}`, (dados) => {
+                setProdutos(dados);
+            });
+        }
+    }, [dadosMotorista.motorista?.motoristatransportadoraid, idPosto]);
 
     useEffect(() => {
         const verificarComprimentoCampos = () => {
@@ -172,7 +167,16 @@ export default function CriarAbastecimentoContingencia() {
         };
     }, [dadosFormulario, fieldClicked]);
 
-    /* handle para formatação de input type number */
+    useEffect(() => {
+        if (dadosMotorista.motorista) {
+            setDadosFormulario(prev => ({
+                ...prev,
+                idVeiculo: dadosMotorista.motorista.veiculo?.veiculoid || '',
+                idMotorista: dadosMotorista.motorista.motoristaid || ''
+            }));
+        }
+    }, [dadosMotorista]);
+
     const handleChangeForNumber = (campo, valor, formatter) => {
         setFieldClicked(prevFieldClicked => ({
             ...prevFieldClicked,
@@ -187,7 +191,6 @@ export default function CriarAbastecimentoContingencia() {
         }));
     };
 
-    /* Envio do formulario */
     const handleSubmit = () => {
         setLoading(true);
         const authToken = localStorage.getItem('authToken');
@@ -226,6 +229,33 @@ export default function CriarAbastecimentoContingencia() {
             });
     };
 
+    const formatarCPF = (cpf) => {
+        return cpf
+            .replace(/\D/g, '')
+            .replace(/^(\d{3})(\d)/, '$1.$2')
+            .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+            .replace(/\.(\d{3})(\d)/, '.$1-$2')
+            .slice(0, 14);
+    };
+
+    const handleCpfChange = (event) => {
+        const valorDigitado = event.target.value;
+        const cpfFormatado = formatarCPF(valorDigitado);
+    
+        setCpfMotorista(cpfFormatado);
+    
+        if (cpfFormatado.length === 14) {
+            GetApiDados(`/users/BuscaUsuarioMotoristaPortal/${cpfFormatado}`, (dados) => {
+                console.log('Retorno da API:', dados);
+                if (dados && typeof dados === 'object') {
+                    setDadosMotorista(dados); 
+                } else {
+                    console.error('Erro: API retornou um formato inválido:', dados);
+                }
+            });
+        }
+    };
+
     return <>
         <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto', display: 'flex', gap: '30px', }}>
             <p>Informações gerais</p>
@@ -241,62 +271,33 @@ export default function CriarAbastecimentoContingencia() {
             </div>
         ) : (null)}
 
-        <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }} data-aos="fade-up-left">
-            <div>
-                {loading ? (
-                    <div style={{ ...styleLoad }}>
-                        <CircularProgress />
-                    </div>
-                ) : (
-                    null
-                )}
+        <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }}>
+            <p>Digite o CPF do motorista</p>
+            <div style={{ display: 'flex', width: '90vw' }}>
+                <TextField
+                    label="CPF do motorista"
+                    value={cpfmotorista}
+                    onChange={handleCpfChange}
+                    sx={{ ...defaultInputStyle, marginTop: '30px', width: '300px', paddingX: 0, '& label.Mui-focused': { marginLeft: 0 } }}
+                />
             </div>
-            <RowForm>
+        </div>
 
-                <Autocomplete
-                    sx={{ ...defaultInputStyle, paddingX: 0, ...defaultInputsAutoComplete }}
-                    options={placasVeiculo}
-                    getOptionLabel={(option) => option.veiculoplaca || 'Veículo'}
-                    onChange={(event, newValue) => {
-                        if (newValue) { handlePlacaChange({ target: { value: newValue.veiculoplaca } }, setPlacaDigitada, setDadosFormulario, dadosFormulario) }
-                    }}
-                    renderOption={(props, option) => (
-                        <li {...props} key={option.veiculoid}>
-                            {option.veiculoplaca}
-                        </li>
-                    )}
-                    renderInput={(params) => (
-                        <TextField
-                            {...params}
-                            label='Veículo'
-                            value={placaDigitada}
-                            onBlur={() => verificarPlaca(placasVeiculo, placaDigitada, setVeiculoEncontrado, setDadosFormulario, dadosFormulario)}
-                        />
-                    )}
-                    filterOptions={(options, { inputValue }) => options.filter((option) => option.veiculoplaca.toLowerCase().includes(inputValue.toLowerCase())).slice(0, 5)}
+        <div className="crancy-teams crancy-page-inner mg-top-30 row" style={{ zIndex: '0', maxWidth: '100vw', height: 'auto' }} data-aos="fade-up-left">
+
+            <RowForm>
+                <TextField
+                    label="Nome do motorista"
+                    value={dadosMotorista?.motorista?.motoristanome || 'Não encontrado'}
+                    disabled={true}
+                    sx={{ ...defaultInputStyle, paddingX: 0, marginRight: 2, '& label.Mui-focused': { marginLeft: 0 } }}
                 />
 
-                <Autocomplete
-                    sx={{ ...defaultInputStyle, paddingX: 1, ...defaultInputsAutoComplete }}
-                    options={motoristas}
-                    getOptionLabel={(option) => option.motoristanome || 'Motorista'}
-                    onChange={(event, newValue) => {
-                        if (newValue) { handleMotoristaChange({ target: { value: newValue.motoristanome } }, setMotoristaDigitado, setDadosFormulario, dadosFormulario) }
-                    }}
-                    renderOption={(props, option) => (
-                        <li {...props} key={option.motoristaid}>
-                            {option.motoristanome}
-                        </li>
-                    )}
-                    renderInput={(params) => (
-                        <TextField
-                            {...params}
-                            label='Motorista'
-                            value={motoristaDigitado}
-                            onBlur={() => verificarMotorista(motoristas, motoristaDigitado, setMotoristaEncontrado, setDadosFormulario, dadosFormulario)}
-                        />
-                    )}
-                    filterOptions={(options, { inputValue }) => options.filter((option) => option.motoristanome.toLowerCase().includes(inputValue.toLowerCase())).slice(0, 5)}
+                <TextField
+                    label="Placa do veículo"
+                    value={dadosMotorista?.motorista?.veiculo?.veiculoplaca || 'Não encontrado'}
+                    disabled={true}
+                    sx={{ ...defaultInputStyle, paddingX: 0, '& label.Mui-focused': { marginLeft: 0 } }}
                 />
             </RowForm>
             <RowForm>
@@ -304,7 +305,6 @@ export default function CriarAbastecimentoContingencia() {
                     sx={{ ...defaultInputStyle, paddingX: 0, ...defaultInputsAutoComplete }}
                     options={produtos}
                     getOptionLabel={(option) => {
-                        // Procura o nome do produto correspondente no estado produtosPortal
                         const produtoPortal = produtosPortal.find(
                             (p) => p.produtoid === option.produtoid
                         );
@@ -382,7 +382,7 @@ export default function CriarAbastecimentoContingencia() {
                     helperText={errors.litros ? 'Quantidade de litros invalída' : ''}
                     onFocus={() => setErrors({ ...errors, litros: false })}
                     onBlur={() => setErrors({ ...errors, litros: !dadosFormulario.litros.trim() })}
-                    onChange={(event) => handleChangeForNumber('litros', event.target.value, formatNumberForLitros)}
+                    onChange={(event) => handleChangeForNumber('litros', event.target.value, normalNumber)}
                     sx={{ ...defaultInputStyle, paddingX: 0, '& label.Mui-focused': { marginLeft: 0 } }}
                 />
             </RowForm>
