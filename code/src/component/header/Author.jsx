@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import profile from "../../assets/img/profile-pic.png";
 import { Link } from "react-router-dom";
 import { handleUnauthorized } from '../../hooks/LogOut';
-import logopng from '../../assets/img/logo.png'
+import logopng from '../../assets/img/logo2.png'
 
 function Author({ subNav, setSubNav, title }) {
 

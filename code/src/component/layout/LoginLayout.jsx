@@ -1,7 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 import bg from "../../assets/img/credential-bg.svg";
-import logoIcon2 from '../../assets/img/logo-icon2.png';
+import logoIcon2 from '../../assets/img/logo-icon3.png';
 import CardHomologacao from "../cards/homologacoa";
 
 function LoginLayout({ children }) {
@@ -20,13 +20,13 @@ function LoginLayout({ children }) {
                 <div className="crancy-wc__form--middle">
                   <div className="crancy-wc__banner">
                     <div style={{
-                      width: '500px', 
+                      width: '600px', 
                       height: '600px', 
                       display: 'flex', 
                       justifyContent: 'center',
                       alignItems: 'center',
                     }}>
-                      <img src={logoIcon2} alt="#" style={{width: '350px', height: '180px',}} />
+                      <img src={logoIcon2} alt="#" style={{width: '450px', height: '180px',}} />
                     </div>
                   </div>
                   <div style={{

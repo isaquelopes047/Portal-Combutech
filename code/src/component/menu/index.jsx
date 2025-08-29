@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logoWhite from "../../assets/img/logo-white.png";
-import logo from "../../assets/img/logo.png";
-import logoIcon from "../../assets/img/logo-icon.png";
+import logo from "../../assets/img/logo2.png";
+import logoIcon from "../../assets/img/logo-icon2.png";
 import arrowIcon from "../../assets/img/arrow-icon.svg";
 import Dropdown from "./Dropdown";
 import Cookies from 'js-cookie';

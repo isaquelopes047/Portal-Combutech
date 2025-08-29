@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import logo from "../../assets/img/logo.png";
+import logo from "../../assets/img/logo2.png";
 import logoWhite from "../../assets/img/logo-white.png";
-import logoIcon from "../../assets/img/logo-icon.png";
+import logoIcon from "../../assets/img/logo-icon2.png";
 import arrowIcon from "../../assets/img/arrow-icon.svg";
 import { Link } from "react-router-dom";
 import SearchForm from "../form/SearchForm";
