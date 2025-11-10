@@ -84,6 +84,38 @@ function LoginForm({ onLogin, AlertError }) {
           </div>
         </div>
         <a className="crancy-btn__default full-width-btn" style={{ width: '100%' }} onClick={handleLogin}>Login</a>
+
+        <div >
+          <a 
+            href="https://yulog.com.br/" 
+            className="forgot-pass" 
+            style={{ 
+              width: '100%', 
+              height: '60px', 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center', 
+              gap: '10px',
+            }}>
+            Powered By
+              <span style={{
+                backgroundColor: '#3464ac',
+                color: '#fff',
+                padding: '2px 2px',
+                width: '60px',
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center',
+                borderRadius: '10px',
+              
+              }}>
+                <p style={{color: '#fff'}}>
+                  YuLog
+                </p>
+              </span>
+          </a>
+        </div>
+
         <div className="form-group" style={{ height: '60px', display: AlertError }}>
           <AlertLoginError />
         </div>

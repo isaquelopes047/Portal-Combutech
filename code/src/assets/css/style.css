@@ -9987,3 +9987,132 @@ select,
 .fm_active_Link {
   color: red;
 }
+
+/* CONTAINER GERAL DA SESSÃO */
+.partnership-section {
+  align-items: center;
+  padding: 1.75rem 1.5rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  margin-top: 30px;
+}
+
+/* COLUNA DE TEXTO */
+.partnership-text {
+  padding: 0.5rem 1rem 0.5rem 0;
+}
+
+.partnership-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  margin-bottom: 0.6rem;
+}
+
+.partnership-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+
+.partnership-subtitle,
+.partnership-description,
+.partnership-help {
+  font-size: 0.92rem;
+  color: #4b5563;
+  margin-bottom: 0.4rem;
+}
+
+.partnership-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.4rem 0 0.6rem 0;
+}
+
+.partnership-list li {
+  position: relative;
+  padding-left: 1.1rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.partnership-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.45rem;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background-color: #22c55e;
+}
+
+/* COLUNA DA IMAGEM */
+.partnership-image-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem 0.5rem 0.5rem 1rem;
+}
+
+/* CARD DA IMAGEM – MENOR PARA NÃO ESTOURAR */
+.partnership-image-card {
+  border-radius: 12px;
+  padding: 0.75rem 0.75rem 0.9rem;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  max-width: 260px;
+  width: 100%;
+  text-align: center;
+}
+
+/* IMAGEM LIMITADA E RESPONSIVA */
+.partnership-image {
+  display: block;
+  max-width: 180px;
+  width: 100%;
+  height: auto;
+  margin: 0 auto 0.6rem;
+  object-fit: contain;
+}
+
+/* TEXTOS PEQUENOS NO CARD */
+.partnership-logos {
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+.partnership-highlight {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 0.2rem;
+}
+
+/* RESPONSIVO */
+@media (max-width: 991px) {
+  .partnership-section {
+    padding: 1.25rem 1rem;
+  }
+
+  .partnership-text {
+    padding: 0 0 0.75rem 0;
+  }
+
+  .partnership-image-wrapper {
+    padding: 0.25rem;
+  }
+
+  .partnership-image-card {
+    margin-top: 0.5rem;
+  }
+}
+
